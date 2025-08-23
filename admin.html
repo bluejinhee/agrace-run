@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>큰은혜교회 런닝크루 - 관리자</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>⚙️ 런닝크루 관리자 페이지</h1>
+            <p>멤버 관리 및 데이터 관리</p>
+            <div class="nav-buttons">
+                <button onclick="location.href='index.html'" class="nav-button">🏃‍♂️ 메인 페이지로</button>
+            </div>
+        </header>
+
+        <div class="member-section">
+            <h2>👥 멤버 등록</h2>
+            <div class="input-group">
+                <input type="text" id="memberName" placeholder="이름을 입력하세요">
+                <button onclick="addMember()">멤버 추가</button>
+            </div>
+        </div>
+
+        <div class="member-management-section">
+            <h2>📋 멤버 관리</h2>
+            <div id="memberList"></div>
+        </div>
+
+        <div class="data-management-section">
+            <h2>💾 데이터 관리</h2>
+            <div class="data-buttons">
+                <button onclick="exportData()" class="export-button">📤 데이터 내보내기</button>
+                <button onclick="importData()" class="import-button">📥 데이터 가져오기</button>
+                <button onclick="resetData()" class="reset-button">🗑️ 모든 데이터 초기화</button>
+            </div>
+            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleFileImport(event)">
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+
+</html>

@@ -26,6 +26,8 @@ header {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
+
+
 header h1 {
     color: #4a5568;
     margin-bottom: 10px;
@@ -331,6 +333,16 @@ button:hover {
     font-weight: bold;
 }
 
+.record-pace {
+    background: #48bb78;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
 .record-date {
     color: #718096;
     font-size: 0.9em;
@@ -559,4 +571,497 @@ button:hover {
     .nav-buttons {
         flex-direction: column;
     }
+}/* 스케줄 
+섹션 스타일 */
+.schedule-section, .schedule-management-section {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.schedule-section h2, .schedule-management-section h2 {
+    color: #4a5568;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+}
+
+/* 달력 스타일 */
+.calendar-container {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 10px;
+}
+
+.calendar-header h3 {
+    color: #4a5568;
+    font-size: 1.3em;
+    margin: 0;
+}
+
+.calendar-nav {
+    background: #667eea;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.calendar-nav:hover {
+    background: #5a67d8;
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    background: #e2e8f0;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.calendar-day-header {
+    background: #4a5568;
+    color: white;
+    padding: 10px 5px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.9em;
+    border-radius: 4px;
+}
+
+.calendar-day {
+    background: white;
+    min-height: 60px;
+    padding: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-day:hover {
+    background: #f7fafc;
+    transform: translateY(-2px);
+}
+
+.calendar-day.other-month {
+    background: #f8f9fa;
+    color: #a0aec0;
+}
+
+.calendar-day.today {
+    background: #667eea;
+    color: white;
+}
+
+.calendar-day.has-schedule {
+    background: #48bb78;
+    color: white;
+}
+
+.calendar-day.has-schedule:hover {
+    background: #38a169;
+}
+
+.day-number {
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.schedule-indicator {
+    font-size: 0.7em;
+    background: rgba(255,255,255,0.9);
+    color: #4a5568;
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-bottom: 1px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.calendar-day.has-schedule .schedule-indicator {
+    background: rgba(255,255,255,0.9);
+    color: #2d3748;
+}
+
+/* 스케줄 관리 폼 */
+.schedule-form {
+    margin-bottom: 30px;
+}
+
+.schedule-form textarea {
+    min-height: 80px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.schedule-list h3 {
+    color: #4a5568;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+.schedule-item {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 4px solid #48bb78;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.schedule-info {
+    flex: 1;
+}
+
+.schedule-date-time {
+    font-weight: bold;
+    color: #4a5568;
+    margin-bottom: 5px;
+}
+
+.schedule-location {
+    color: #667eea;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.schedule-description {
+    color: #718096;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.schedule-actions {
+    display: flex;
+    gap: 5px;
+    margin-left: 15px;
+}
+
+.schedule-edit-btn, .schedule-delete-btn {
+    padding: 5px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.schedule-edit-btn {
+    background: #4299e1;
+    color: white;
+}
+
+.schedule-edit-btn:hover {
+    background: #3182ce;
+}
+
+.schedule-delete-btn {
+    background: #f56565;
+    color: white;
+}
+
+.schedule-delete-btn:hover {
+    background: #e53e3e;
+}
+
+.no-schedules {
+    text-align: center;
+    color: #718096;
+    font-style: italic;
+    padding: 20px;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 600px) {
+    .calendar {
+        gap: 1px;
+        padding: 5px;
+    }
+    
+    .calendar-day {
+        min-height: 50px;
+        padding: 3px;
+    }
+    
+    .schedule-indicator {
+        font-size: 0.6em;
+    }
+    
+    .schedule-item {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .schedule-actions {
+        margin-left: 0;
+        align-self: flex-end;
+    }
+}/* 모달
+ 스타일 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #4a5568;
+    font-size: 1.3em;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #a0aec0;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s;
+}
+
+.modal-close:hover {
+    background: #f7fafc;
+    color: #4a5568;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-body .input-group {
+    margin-bottom: 20px;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.modal-body label {
+    font-weight: bold;
+    color: #4a5568;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+.modal-body input,
+.modal-body textarea {
+    width: 100%;
+    margin: 0;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 20px 25px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.save-button {
+    background: #48bb78;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.save-button:hover {
+    background: #38a169;
+}
+
+.cancel-button {
+    background: #e2e8f0;
+    color: #4a5568;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.cancel-button:hover {
+    background: #cbd5e0;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 600px) {
+    .modal-content {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 15px 20px;
+    }
+    
+    .modal-footer {
+        flex-direction: column;
+    }
+    
+    .save-button,
+    .cancel-button {
+        width: 100%;
+    }
+}/*
+ 기록 관리 스타일 */
+.record-management-section {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.record-management-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: #f8fafc;
+}
+
+.record-management-info {
+    flex: 1;
+}
+
+.record-management-member {
+    font-weight: bold;
+    color: #4a5568;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.record-management-details {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.record-distance-tag {
+    background: #667eea;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.record-pace-tag {
+    background: #48bb78;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.record-management-date {
+    color: #718096;
+    font-size: 0.9em;
+}
+
+.record-management-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.no-records {
+    text-align: center;
+    color: #718096;
+    padding: 20px;
+    font-style: italic;
+}/*
+ 연결 상태 스타일 */
+.connection-status {
+    font-weight: bold;
+    border: 1px solid;
+}
+
+.connection-status.online {
+    background: #c6f6d5;
+    color: #22543d;
+    border-color: #9ae6b4;
+}
+
+.connection-status.offline {
+    background: #fed7d7;
+    color: #742a2a;
+    border-color: #fc8181;
+}
+
+/* 로딩 애니메이션 */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+#loading div:first-child {
+    animation: bounce 1s infinite;
 }

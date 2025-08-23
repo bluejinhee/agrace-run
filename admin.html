@@ -31,6 +31,95 @@
             <div id="memberList"></div>
         </div>
 
+        <div class="schedule-management-section">
+            <h2>📅 스케줄 관리</h2>
+            <div class="schedule-form">
+                <div class="input-group">
+                    <input type="date" id="scheduleDate" placeholder="날짜">
+                    <input type="time" id="scheduleTime" placeholder="시간">
+                    <input type="text" id="scheduleLocation" placeholder="장소 (예: 한강공원)">
+                </div>
+                <div class="input-group">
+                    <textarea id="scheduleDescription" placeholder="상세 내용 (예: 5km 조깅, 준비물: 물병)"></textarea>
+                    <button onclick="addSchedule()" id="scheduleSubmitBtn">스케줄 추가</button>
+                    <button onclick="cancelEdit()" id="scheduleCancelBtn" style="display: none;">취소</button>
+                </div>
+            </div>
+            <div class="schedule-list">
+                <h3>등록된 스케줄</h3>
+                <div id="scheduleList"></div>
+            </div>
+        </div>
+
+        <!-- 스케줄 수정 모달 -->
+        <div id="editScheduleModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>스케줄 수정</h3>
+                    <button onclick="closeEditModal()" class="modal-close">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label>날짜</label>
+                        <input type="date" id="editScheduleDate">
+                    </div>
+                    <div class="input-group">
+                        <label>시간</label>
+                        <input type="time" id="editScheduleTime">
+                    </div>
+                    <div class="input-group">
+                        <label>장소</label>
+                        <input type="text" id="editScheduleLocation" placeholder="장소 (예: 한강공원)">
+                    </div>
+                    <div class="input-group">
+                        <label>상세 내용</label>
+                        <textarea id="editScheduleDescription" placeholder="상세 내용 (예: 5km 조깅, 준비물: 물병)"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="saveScheduleEdit()" class="save-button">저장</button>
+                    <button onclick="closeEditModal()" class="cancel-button">취소</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="record-management-section">
+            <h2>🏃‍♂️ 기록 관리</h2>
+            <div id="recordManagementList"></div>
+        </div>
+
+        <!-- 기록 수정 모달 -->
+        <div id="editRecordModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>기록 수정</h3>
+                    <button onclick="closeEditRecordModal()" class="modal-close">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label>멤버</label>
+                        <select id="editRecordMember"></select>
+                    </div>
+                    <div class="input-group">
+                        <label>거리 (km)</label>
+                        <input type="number" id="editRecordDistance" step="0.1" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>페이스 (분:초/km, 선택사항)</label>
+                        <input type="text" id="editRecordPace" placeholder="5:30" pattern="[0-9]+:[0-5][0-9]">
+                    </div>
+                    <div class="input-group">
+                        <label>날짜</label>
+                        <input type="date" id="editRecordDate">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="saveRecordEdit()" class="save-button">저장</button>
+                    <button onclick="closeEditRecordModal()" class="cancel-button">취소</button>
+                </div>
+            </div>
+        </div>
+
         <div class="data-management-section">
             <h2>💾 데이터 관리</h2>
             <div class="data-buttons">
@@ -42,6 +131,18 @@
         </div>
     </div>
 
+    <!-- 로딩 표시 -->
+    <div id="loading" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); z-index: 1000;">
+        <div style="text-align: center;">
+            <div style="font-size: 2em; margin-bottom: 10px;">⚙️</div>
+            <div>데이터 로딩 중...</div>
+        </div>
+    </div>
+
+    <!-- 연결 상태 표시 -->
+    <div id="connectionStatus" class="connection-status" style="position: fixed; top: 10px; right: 10px; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; z-index: 1000;"></div>
+
+    <script src="aws-config.js"></script>
     <script src="admin.js"></script>
 </body>
 

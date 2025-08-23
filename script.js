@@ -1,21 +1,62 @@
 // 데이터 저장소
-let members = JSON.parse(localStorage.getItem('runningClubMembers')) || [];
-let records = JSON.parse(localStorage.getItem('runningClubRecords')) || [];
+let members = [];
+let records = [];
+let schedules = [];
+
+// 초기 데이터 로드
+async function initializeData() {
+    const data = await loadFromCloud();
+    members = data.members || [];
+    records = data.records || [];
+    schedules = data.schedules || [];
+}
 
 // 마일스톤 설정 (km 단위) - 300km만 표시
 const MILESTONES = [300];
 
+// 달력 관련 변수
+let currentDate = new Date();
+const monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
 // 페이지 로드 시 초기화
-document.addEventListener('DOMContentLoaded', function() {
-    updateMemberSelect();
-    updateTeamProgress();
-    updateStats();
-    updateRecentRecords();
+document.addEventListener('DOMContentLoaded', async function() {
+    // 로딩 표시
+    showLoading(true);
     
-    // 날짜 입력 필드를 오늘 날짜로 초기화
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('recordDate').value = today;
+    try {
+        // 클라우드에서 데이터 로드
+        await initializeData();
+        
+        // UI 업데이트
+        updateMemberSelect();
+        updateTeamProgress();
+        updateStats();
+        updateRecentRecords();
+        updateCalendar();
+        
+        // 연결 상태 업데이트
+        await updateConnectionStatus();
+        
+        // 날짜 입력 필드를 오늘 날짜로 초기화
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('recordDate').value = today;
+        
+    } catch (error) {
+        console.error('초기화 오류:', error);
+        alert('데이터 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+    } finally {
+        showLoading(false);
+    }
 });
+
+// 로딩 표시 함수
+function showLoading(show) {
+    const loadingElement = document.getElementById('loading');
+    if (loadingElement) {
+        loadingElement.style.display = show ? 'block' : 'none';
+    }
+}
 
 
 
@@ -23,10 +64,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function addRecord() {
     const memberSelect = document.getElementById('memberSelect');
     const distanceInput = document.getElementById('distance');
+    const paceInput = document.getElementById('pace');
     const dateInput = document.getElementById('recordDate');
     
     const memberId = parseInt(memberSelect.value);
     const distance = parseFloat(distanceInput.value);
+    const pace = paceInput.value.trim();
     const selectedDate = dateInput.value;
     
     if (!memberId) {
@@ -44,6 +87,12 @@ function addRecord() {
         return;
     }
     
+    // 페이스 유효성 검사 (선택사항)
+    if (pace && !isValidPace(pace)) {
+        alert('페이스는 분:초 형식으로 입력해주세요 (예: 5:30)');
+        return;
+    }
+    
     const member = members.find(m => m.id === memberId);
     const previousTotal = member.totalDistance;
     
@@ -57,6 +106,7 @@ function addRecord() {
         id: Date.now(),
         memberId: memberId,
         distance: distance,
+        pace: pace || null, // 페이스가 입력되지 않으면 null
         date: formattedDate,
         time: currentTime,
         originalDate: selectedDate // 정렬을 위한 원본 날짜 저장
@@ -77,8 +127,10 @@ function addRecord() {
     updateRecentRecords();
     
     distanceInput.value = '';
+    paceInput.value = '';
     // 날짜는 그대로 유지 (연속 입력 편의성)
-    alert(`${member.name}님의 ${distance}km 기록이 ${formattedDate}로 추가되었습니다! 🏃‍♂️`);
+    const paceText = pace ? ` (페이스: ${pace}/km)` : '';
+    alert(`${member.name}님의 ${distance}km 기록이 ${formattedDate}로 추가되었습니다!${paceText} 🏃‍♂️`);
 }
 
 // 팀 마일스톤 체크 및 축하 메시지
@@ -137,11 +189,7 @@ function updateTeamProgress() {
         <div class="team-total">
             <h3>🏃‍♂️ 팀 전체 누적 거리 🏃‍♀️</h3>
             <div class="total-distance">${totalDistance.toFixed(1)} km</div>
-            <div class="next-goal">
-                ${getNextTeamMilestone(totalDistance) ? 
-                    `다음 목표까지 ${(getNextTeamMilestone(totalDistance) - totalDistance).toFixed(1)}km 남았어요!` : 
-                    '모든 목표를 달성했습니다! 🎉'}
-            </div>
+
         </div>
     `;
     
@@ -152,13 +200,13 @@ function updateTeamProgress() {
         
         return `
             <div class="goal-card ${achieved ? 'achieved' : ''}">
-                <div class="goal-title">${milestone}km 목표</div>
+                <div class="goal-title">🍗 팀 목표 ${milestone}km 🍗</div>
                 <div class="goal-progress">${progress.toFixed(1)}%</div>
                 <div class="goal-target">${totalDistance.toFixed(1)} / ${milestone} km</div>
                 <div class="progress-bar">
                     <div class="progress-fill" style="width: ${progress}%"></div>
                 </div>
-                ${achieved ? '<div style="margin-top: 10px;">🎉 달성 완료! 🎉</div>' : ''}
+                ${achieved ? '<div style="margin-top: 10px;">🎉 치킨파티 달성! 🍗🎊</div>' : '<div style="margin-top: 10px;">🏃‍♂️ 치킨파티를 향해 달려요! 🏃‍♂️</div>'}
             </div>
         `;
     }).join('');
@@ -200,7 +248,7 @@ function updateStats() {
         
         memberCard.innerHTML = `
             <div class="member-name">
-                ${index === 0 ? '👑 ' : ''}${member.name}
+                ${index === 0 ? '🥇 ' : index === 1 ? '🥈 ' : index === 2 ? '🥉 ' : ''}${member.name}
             </div>
             <div class="member-stats">
                 <div class="stat-item">
@@ -261,6 +309,7 @@ function updateRecentRecords() {
             <div class="record-info">
                 <div class="record-member">${member.name}</div>
                 <div class="record-distance">${record.distance}km</div>
+                ${record.pace ? `<div class="record-pace">${record.pace}/km</div>` : ''}
             </div>
             <div class="record-date">${record.date} ${record.time}</div>
         `;
@@ -269,8 +318,104 @@ function updateRecentRecords() {
     });
 }
 
+// 달력 업데이트
+function updateCalendar() {
+    const calendar = document.getElementById('calendar');
+    const currentMonthElement = document.getElementById('currentMonth');
+    
+    // 현재 월 표시
+    currentMonthElement.textContent = `${currentDate.getFullYear()}년 ${monthNames[currentDate.getMonth()]}`;
+    
+    // 달력 초기화
+    calendar.innerHTML = '';
+    
+    // 요일 헤더 추가
+    dayNames.forEach(day => {
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'calendar-day-header';
+        dayHeader.textContent = day;
+        calendar.appendChild(dayHeader);
+    });
+    
+    // 이번 달의 첫 날과 마지막 날
+    const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    
+    // 이전 달의 마지막 날들
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay());
+    
+    // 6주 표시 (42일)
+    for (let i = 0; i < 42; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        
+        // 다른 달인지 확인
+        if (date.getMonth() !== currentDate.getMonth()) {
+            dayElement.classList.add('other-month');
+        }
+        
+        // 오늘인지 확인
+        const today = new Date();
+        if (date.toDateString() === today.toDateString()) {
+            dayElement.classList.add('today');
+        }
+        
+        // 스케줄이 있는지 확인
+        const dateString = date.toISOString().split('T')[0];
+        const daySchedules = schedules.filter(schedule => schedule.date === dateString);
+        
+        if (daySchedules.length > 0) {
+            dayElement.classList.add('has-schedule');
+        }
+        
+        // 날짜 번호
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'day-number';
+        dayNumber.textContent = date.getDate();
+        dayElement.appendChild(dayNumber);
+        
+        // 스케줄 표시
+        daySchedules.slice(0, 2).forEach(schedule => {
+            const scheduleIndicator = document.createElement('div');
+            scheduleIndicator.className = 'schedule-indicator';
+            scheduleIndicator.textContent = `${schedule.time} ${schedule.location}`;
+            dayElement.appendChild(scheduleIndicator);
+        });
+        
+        if (daySchedules.length > 2) {
+            const moreIndicator = document.createElement('div');
+            moreIndicator.className = 'schedule-indicator';
+            moreIndicator.textContent = `+${daySchedules.length - 2}개`;
+            dayElement.appendChild(moreIndicator);
+        }
+        
+        calendar.appendChild(dayElement);
+    }
+}
+
+// 이전 달로 이동
+function previousMonth() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    updateCalendar();
+}
+
+// 다음 달로 이동
+function nextMonth() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    updateCalendar();
+}
+
+// 페이스 유효성 검사 함수
+function isValidPace(pace) {
+    const pacePattern = /^[0-9]+:[0-5][0-9]$/;
+    return pacePattern.test(pace);
+}
+
 // 데이터 저장
-function saveData() {
-    localStorage.setItem('runningClubMembers', JSON.stringify(members));
-    localStorage.setItem('runningClubRecords', JSON.stringify(records));
+async function saveData() {
+    await saveToCloud(members, records, schedules);
 }

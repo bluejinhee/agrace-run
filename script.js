@@ -5,17 +5,27 @@ let schedules = [];
 
 // 초기 데이터 로드
 async function initializeData() {
-    // TODO: Replace with Amplify Storage API calls
-    // const data = await loadFromCloud();
-    // Temporary fallback to empty data until Amplify Storage is implemented
-    const data = {
-        members: [],
-        records: [],
-        schedules: []
-    };
-    members = data.members || [];
-    records = data.records || [];
-    schedules = data.schedules || [];
+    try {
+        const data = await retryOperation(
+            () => window.loadFromCloud(),
+            '데이터 로드'
+        );
+        members = data.members || [];
+        records = data.records || [];
+        schedules = data.schedules || [];
+        console.log('Data loaded successfully:', { 
+            membersCount: members.length, 
+            recordsCount: records.length, 
+            schedulesCount: schedules.length 
+        });
+    } catch (error) {
+        console.error('Failed to load data from cloud:', error);
+        // 오류 발생 시 빈 배열로 초기화
+        members = [];
+        records = [];
+        schedules = [];
+        throw error;
+    }
 }
 
 // 마일스톤 설정 (km 단위) - 300km만 표시
@@ -42,8 +52,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         updateRecentRecords();
         updateCalendar();
         
-        // TODO: Replace with Amplify connection status check
-        // await updateConnectionStatus();
+        // S3 연결 상태 확인
+        if (typeof window.updateConnectionStatus === 'function') {
+            await window.updateConnectionStatus();
+        }
         
         // 날짜 입력 필드를 오늘 날짜로 초기화
         const today = new Date().toISOString().split('T')[0];
@@ -51,24 +63,81 @@ document.addEventListener('DOMContentLoaded', async function() {
         
     } catch (error) {
         console.error('초기화 오류:', error);
-        alert('데이터 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+        showError('데이터 로드 중 오류가 발생했습니다.', error);
     } finally {
         showLoading(false);
     }
 });
 
 // 로딩 표시 함수
-function showLoading(show) {
+function showLoading(show, message = '데이터 로딩 중...') {
     const loadingElement = document.getElementById('loading');
     if (loadingElement) {
-        loadingElement.style.display = show ? 'block' : 'none';
+        if (show) {
+            loadingElement.style.display = 'block';
+            const loadingText = loadingElement.querySelector('.loading-text');
+            if (loadingText) {
+                loadingText.textContent = message;
+            }
+        } else {
+            loadingElement.style.display = 'none';
+        }
+    }
+}
+
+// 오류 표시 함수
+function showError(message, error = null) {
+    console.error('Error:', message, error);
+    
+    // 사용자 친화적인 오류 메시지 생성
+    let userMessage = message;
+    if (error && error.message) {
+        // storage-manager.js에서 처리된 사용자 친화적 메시지 사용
+        userMessage = error.message;
+    }
+    
+    // 오류 UI 표시
+    const errorElement = document.getElementById('errorMessage');
+    if (errorElement) {
+        errorElement.textContent = userMessage;
+        errorElement.style.display = 'block';
+        
+        // 5초 후 자동으로 숨김
+        setTimeout(() => {
+            errorElement.style.display = 'none';
+        }, 5000);
+    } else {
+        // 오류 UI가 없으면 alert 사용
+        alert(userMessage);
+    }
+}
+
+// 재시도 함수
+async function retryOperation(operation, operationName, maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            return await operation();
+        } catch (error) {
+            console.log(`${operationName} attempt ${attempt} failed:`, error);
+            
+            if (attempt === maxRetries) {
+                throw error;
+            }
+            
+            // 사용자에게 재시도 중임을 알림
+            showLoading(true, `${operationName} 재시도 중... (${attempt}/${maxRetries})`);
+            
+            // 지수 백오프로 대기
+            const delay = 1000 * Math.pow(2, attempt - 1);
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
     }
 }
 
 
 
 // 기록 추가
-function addRecord() {
+async function addRecord() {
     const memberSelect = document.getElementById('memberSelect');
     const distanceInput = document.getElementById('distance');
     const paceInput = document.getElementById('pace');
@@ -128,16 +197,29 @@ function addRecord() {
     // 마일스톤 체크
     checkMilestone(member, previousTotal);
     
-    saveData();
-    updateTeamProgress();
-    updateStats();
-    updateRecentRecords();
-    
-    distanceInput.value = '';
-    paceInput.value = '';
-    // 날짜는 그대로 유지 (연속 입력 편의성)
-    const paceText = pace ? ` (페이스: ${pace}/km)` : '';
-    alert(`${member.name}님의 ${distance}km 기록이 ${formattedDate}로 추가되었습니다!${paceText} 🏃‍♂️`);
+    try {
+        await saveData();
+        updateTeamProgress();
+        updateStats();
+        updateRecentRecords();
+        
+        distanceInput.value = '';
+        paceInput.value = '';
+        // 날짜는 그대로 유지 (연속 입력 편의성)
+        const paceText = pace ? ` (페이스: ${pace}/km)` : '';
+        alert(`${member.name}님의 ${distance}km 기록이 ${formattedDate}로 추가되었습니다!${paceText} 🏃‍♂️`);
+    } catch (error) {
+        // 저장 실패 시 데이터 롤백
+        member.totalDistance = previousTotal;
+        member.recordCount -= 1;
+        records.pop(); // 마지막에 추가된 기록 제거
+        
+        updateTeamProgress();
+        updateStats();
+        updateRecentRecords();
+        
+        console.error('Record save failed, data rolled back:', error);
+    }
 }
 
 // 팀 마일스톤 체크 및 축하 메시지
@@ -424,7 +506,18 @@ function isValidPace(pace) {
 
 // 데이터 저장
 async function saveData() {
-    // TODO: Replace with Amplify Storage API calls
-    // await saveToCloud(members, records, schedules);
-    console.log('Data save temporarily disabled - will be replaced with Amplify Storage API');
+    try {
+        showLoading(true, '데이터 저장 중...');
+        await retryOperation(
+            () => window.saveToCloud(members, records, schedules),
+            '데이터 저장'
+        );
+        console.log('Data saved successfully to S3');
+    } catch (error) {
+        console.error('Failed to save data to cloud:', error);
+        showError('데이터 저장에 실패했습니다.', error);
+        throw error;
+    } finally {
+        showLoading(false);
+    }
 }

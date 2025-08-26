@@ -5,17 +5,25 @@ let schedules = [];
 
 // 초기 데이터 로드
 async function initializeData() {
-    // TODO: Replace with Amplify Storage API calls
-    // const data = await loadFromCloud();
-    // Temporary fallback to empty data until Amplify Storage is implemented
-    const data = {
-        members: [],
-        records: [],
-        schedules: []
-    };
-    members = data.members || [];
-    records = data.records || [];
-    schedules = data.schedules || [];
+    try {
+        console.log('Loading data from S3...');
+        const data = await loadFromCloud();
+        members = data.members || [];
+        records = data.records || [];
+        schedules = data.schedules || [];
+        console.log('Data loaded successfully:', { 
+            membersCount: members.length, 
+            recordsCount: records.length, 
+            schedulesCount: schedules.length 
+        });
+    } catch (error) {
+        console.error('Error loading data:', error);
+        // 초기 데이터로 폴백
+        members = [];
+        records = [];
+        schedules = [];
+        throw error;
+    }
 }
 
 // 페이지 로드 시 초기화
@@ -32,8 +40,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         updateScheduleList();
         updateRecordManagementList();
         
-        // TODO: Replace with Amplify connection status check
-        // await updateConnectionStatus();
+        // S3 연결 상태 확인
+        await updateConnectionStatus();
         
     } catch (error) {
         console.error('초기화 오류:', error);
@@ -65,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 // 멤버 추가
-function addMember() {
+async function addMember() {
     const nameInput = document.getElementById('memberName');
     const name = nameInput.value.trim();
     
@@ -88,35 +96,56 @@ function addMember() {
     };
     
     members.push(newMember);
-    saveData();
-    updateMemberList();
+    
+    try {
+        await saveData();
+        updateMemberList();
+    } catch (error) {
+        // 저장 실패 시 멤버 제거
+        members = members.filter(m => m.id !== newMember.id);
+        throw error;
+    }
     
     nameInput.value = '';
     alert(name + '님이 런닝크루에 가입했습니다! 🎉');
 }
 
 // 멤버 삭제
-function removeMember(memberId) {
+async function removeMember(memberId) {
     const member = members.find(m => m.id === memberId);
     if (!member) return;
     
     const confirmDelete = confirm(member.name + '님을 정말 삭제하시겠습니까?\n관련된 모든 기록도 함께 삭제됩니다.');
     
     if (confirmDelete) {
-        // 멤버 삭제
-        members = members.filter(m => m.id !== memberId);
-        
-        // 해당 멤버의 기록도 모두 삭제
-        records = records.filter(r => r.memberId !== memberId);
-        
-        saveData();
-        updateMemberList();
-        alert(member.name + '님이 삭제되었습니다.');
+        try {
+            // 백업 데이터 저장
+            const backupMembers = [...members];
+            const backupRecords = [...records];
+            
+            // 멤버 삭제
+            members = members.filter(m => m.id !== memberId);
+            
+            // 해당 멤버의 기록도 모두 삭제
+            records = records.filter(r => r.memberId !== memberId);
+            
+            await saveData();
+            updateMemberList();
+            updateRecordManagementList();
+            alert(member.name + '님이 삭제되었습니다.');
+            
+        } catch (error) {
+            // 실패 시 원복
+            members = backupMembers;
+            records = backupRecords;
+            console.error('Error removing member:', error);
+            alert('멤버 삭제 중 오류가 발생했습니다: ' + error.message);
+        }
     }
 }
 
 // 멤버 이름 수정
-function editMemberName(memberId) {
+async function editMemberName(memberId) {
     const member = members.find(m => m.id === memberId);
     if (!member) return;
     
@@ -131,10 +160,19 @@ function editMemberName(memberId) {
             return;
         }
         
+        const originalName = member.name;
         member.name = trimmedName;
-        saveData();
-        updateMemberList();
-        alert('이름이 ' + trimmedName + '으로 변경되었습니다.');
+        
+        try {
+            await saveData();
+            updateMemberList();
+            alert('이름이 ' + trimmedName + '으로 변경되었습니다.');
+        } catch (error) {
+            // 실패 시 원복
+            member.name = originalName;
+            console.error('Error updating member name:', error);
+            alert('이름 변경 중 오류가 발생했습니다: ' + error.message);
+        }
     }
 }
 
@@ -175,7 +213,7 @@ function updateMemberList() {
 }
 
 // 스케줄 추가
-function addSchedule() {
+async function addSchedule() {
     console.log('addSchedule 함수가 호출되었습니다!'); // 디버깅용
     
     const dateInput = document.getElementById('scheduleDate');
@@ -215,8 +253,17 @@ function addSchedule() {
     };
     
     schedules.push(newSchedule);
-    saveData();
-    updateScheduleList();
+    
+    try {
+        await saveData();
+        updateScheduleList();
+    } catch (error) {
+        // 저장 실패 시 스케줄 제거
+        schedules = schedules.filter(s => s.id !== newSchedule.id);
+        console.error('Error saving schedule:', error);
+        alert('스케줄 저장 중 오류가 발생했습니다: ' + error.message);
+        return;
+    }
     
     // 입력 필드 초기화
     dateInput.value = '';
@@ -228,17 +275,26 @@ function addSchedule() {
 }
 
 // 스케줄 삭제
-function removeSchedule(scheduleId) {
+async function removeSchedule(scheduleId) {
     const schedule = schedules.find(s => s.id === scheduleId);
     if (!schedule) return;
     
     const confirmDelete = confirm(schedule.date + ' ' + schedule.time + ' 스케줄을 삭제하시겠습니까?');
     
     if (confirmDelete) {
+        const backupSchedules = [...schedules];
         schedules = schedules.filter(s => s.id !== scheduleId);
-        saveData();
-        updateScheduleList();
-        alert('스케줄이 삭제되었습니다.');
+        
+        try {
+            await saveData();
+            updateScheduleList();
+            alert('스케줄이 삭제되었습니다.');
+        } catch (error) {
+            // 실패 시 원복
+            schedules = backupSchedules;
+            console.error('Error removing schedule:', error);
+            alert('스케줄 삭제 중 오류가 발생했습니다: ' + error.message);
+        }
     }
 }
 
@@ -263,7 +319,7 @@ function editSchedule(scheduleId) {
 }
 
 // 스케줄 수정 저장
-function saveScheduleEdit() {
+async function saveScheduleEdit() {
     if (!currentEditingScheduleId) return;
     
     const schedule = schedules.find(s => s.id === currentEditingScheduleId);
@@ -290,16 +346,34 @@ function saveScheduleEdit() {
         return;
     }
     
+    // 백업 데이터 저장
+    const originalData = {
+        date: schedule.date,
+        time: schedule.time,
+        location: schedule.location,
+        description: schedule.description
+    };
+    
     // 스케줄 업데이트
     schedule.date = newDate;
     schedule.time = newTime;
     schedule.location = newLocation;
     schedule.description = newDescription;
     
-    saveData();
-    updateScheduleList();
-    closeEditModal();
-    alert('스케줄이 수정되었습니다! ✅');
+    try {
+        await saveData();
+        updateScheduleList();
+        closeEditModal();
+        alert('스케줄이 수정되었습니다! ✅');
+    } catch (error) {
+        // 실패 시 원복
+        schedule.date = originalData.date;
+        schedule.time = originalData.time;
+        schedule.location = originalData.location;
+        schedule.description = originalData.description;
+        console.error('Error updating schedule:', error);
+        alert('스케줄 수정 중 오류가 발생했습니다: ' + error.message);
+    }
 }
 
 // 수정 모달 닫기
@@ -379,33 +453,52 @@ function importData() {
     document.getElementById('importFile').click();
 }
 
-// 파일 가져오기 처리
-function handleFileImport(event) {
+// 파일 가져오기 처리 (로컬 파일에서)
+async function handleFileImport(event) {
     const file = event.target.files[0];
     if (!file) return;
     
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = async function(e) {
         try {
+            showLoading(true);
+            
             const data = JSON.parse(e.target.result);
             
-            if (data.members && data.records) {
+            if (data.members && Array.isArray(data.members)) {
                 const confirmImport = confirm('기존 데이터를 모두 덮어쓰시겠습니까?\n이 작업은 되돌릴 수 없습니다.');
                 
                 if (confirmImport) {
+                    // 현재 데이터를 백업으로 저장
+                    try {
+                        await createBackup();
+                    } catch (backupError) {
+                        console.warn('Backup creation failed:', backupError);
+                    }
+                    
+                    // 새 데이터로 교체
                     members = data.members;
-                    records = data.records;
+                    records = data.records || [];
                     schedules = data.schedules || [];
-                    saveData();
+                    
+                    // S3에 저장
+                    await saveData();
+                    
+                    // UI 업데이트
                     updateMemberList();
                     updateScheduleList();
-                    alert('데이터가 성공적으로 가져와졌습니다! 📥');
+                    updateRecordManagementList();
+                    
+                    alert('데이터가 성공적으로 가져와졌습니다! 📥\n이전 데이터는 백업으로 저장되었습니다.');
                 }
             } else {
-                alert('올바르지 않은 데이터 형식입니다.');
+                alert('올바르지 않은 데이터 형식입니다.\n필수 필드: members (배열)');
             }
         } catch (error) {
-            alert('파일을 읽는 중 오류가 발생했습니다.');
+            console.error('Error importing data:', error);
+            alert('파일을 읽는 중 오류가 발생했습니다: ' + error.message);
+        } finally {
+            showLoading(false);
         }
     };
     
@@ -414,20 +507,40 @@ function handleFileImport(event) {
 }
 
 // 모든 데이터 초기화
-function resetData() {
+async function resetData() {
     const confirmReset = confirm('정말로 모든 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.');
     
     if (confirmReset) {
         const doubleConfirm = confirm('마지막 확인입니다.\n모든 멤버와 기록이 영구적으로 삭제됩니다.');
         
         if (doubleConfirm) {
-            members = [];
-            records = [];
-            schedules = [];
-            saveData();
-            updateMemberList();
-            updateScheduleList();
-            alert('모든 데이터가 삭제되었습니다.');
+            try {
+                showLoading(true);
+                
+                // 현재 데이터를 백업으로 저장
+                await createBackup();
+                
+                // 모든 데이터 초기화
+                members = [];
+                records = [];
+                schedules = [];
+                
+                // S3에 빈 데이터 저장
+                await saveData();
+                
+                // UI 업데이트
+                updateMemberList();
+                updateScheduleList();
+                updateRecordManagementList();
+                
+                alert('모든 데이터가 삭제되었습니다.\n이전 데이터는 백업으로 저장되었습니다.');
+                
+            } catch (error) {
+                console.error('Error resetting data:', error);
+                alert('데이터 초기화 중 오류가 발생했습니다: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
         }
     }
 }
@@ -481,7 +594,7 @@ function updateRecordManagementList() {
 }
 
 // 기록 삭제
-function removeRecord(recordId) {
+async function removeRecord(recordId) {
     const record = records.find(r => r.id === recordId);
     if (!record) return;
     
@@ -491,23 +604,42 @@ function removeRecord(recordId) {
     const confirmDelete = confirm(`${memberName}님의 ${record.distance}km 기록을 삭제하시겠습니까?`);
     
     if (confirmDelete) {
-        // 기록 삭제
-        records = records.filter(r => r.id !== recordId);
+        // 백업 데이터 저장
+        const backupRecords = [...records];
+        const originalMemberStats = member ? {
+            totalDistance: member.totalDistance,
+            recordCount: member.recordCount
+        } : null;
         
-        // 멤버 통계 업데이트
-        if (member) {
-            member.totalDistance -= record.distance;
-            member.recordCount -= 1;
+        try {
+            // 기록 삭제
+            records = records.filter(r => r.id !== recordId);
             
-            // 음수 방지
-            if (member.totalDistance < 0) member.totalDistance = 0;
-            if (member.recordCount < 0) member.recordCount = 0;
+            // 멤버 통계 업데이트
+            if (member) {
+                member.totalDistance -= record.distance;
+                member.recordCount -= 1;
+                
+                // 음수 방지
+                if (member.totalDistance < 0) member.totalDistance = 0;
+                if (member.recordCount < 0) member.recordCount = 0;
+            }
+            
+            await saveData();
+            updateRecordManagementList();
+            updateMemberList();
+            alert('기록이 삭제되었습니다.');
+            
+        } catch (error) {
+            // 실패 시 원복
+            records = backupRecords;
+            if (member && originalMemberStats) {
+                member.totalDistance = originalMemberStats.totalDistance;
+                member.recordCount = originalMemberStats.recordCount;
+            }
+            console.error('Error removing record:', error);
+            alert('기록 삭제 중 오류가 발생했습니다: ' + error.message);
         }
-        
-        saveData();
-        updateRecordManagementList();
-        updateMemberList();
-        alert('기록이 삭제되었습니다.');
     }
 }
 
@@ -541,7 +673,7 @@ function editRecord(recordId) {
 }
 
 // 기록 수정 저장
-function saveRecordEdit() {
+async function saveRecordEdit() {
     if (!currentEditingRecordId) return;
     
     const record = records.find(r => r.id === currentEditingRecordId);
@@ -577,37 +709,80 @@ function saveRecordEdit() {
         return;
     }
     
-    // 이전 멤버 통계 업데이트 (기록 제거)
+    // 백업 데이터 저장
+    const originalRecord = {
+        memberId: record.memberId,
+        distance: record.distance,
+        pace: record.pace,
+        date: record.date,
+        originalDate: record.originalDate
+    };
+    
     const oldMember = members.find(m => m.id === oldMemberId);
-    if (oldMember) {
-        oldMember.totalDistance -= oldDistance;
-        oldMember.recordCount -= 1;
-        if (oldMember.totalDistance < 0) oldMember.totalDistance = 0;
-        if (oldMember.recordCount < 0) oldMember.recordCount = 0;
-    }
-    
-    // 새 멤버 통계 업데이트 (기록 추가)
     const newMember = members.find(m => m.id === newMemberId);
-    if (newMember) {
-        newMember.totalDistance += newDistance;
-        newMember.recordCount += 1;
+    
+    const originalOldMemberStats = oldMember ? {
+        totalDistance: oldMember.totalDistance,
+        recordCount: oldMember.recordCount
+    } : null;
+    
+    const originalNewMemberStats = newMember ? {
+        totalDistance: newMember.totalDistance,
+        recordCount: newMember.recordCount
+    } : null;
+    
+    try {
+        // 이전 멤버 통계 업데이트 (기록 제거)
+        if (oldMember) {
+            oldMember.totalDistance -= oldDistance;
+            oldMember.recordCount -= 1;
+            if (oldMember.totalDistance < 0) oldMember.totalDistance = 0;
+            if (oldMember.recordCount < 0) oldMember.recordCount = 0;
+        }
+        
+        // 새 멤버 통계 업데이트 (기록 추가)
+        if (newMember) {
+            newMember.totalDistance += newDistance;
+            newMember.recordCount += 1;
+        }
+        
+        // 기록 업데이트
+        const recordDate = new Date(newDate);
+        const formattedDate = recordDate.toLocaleDateString('ko-KR');
+        
+        record.memberId = newMemberId;
+        record.distance = newDistance;
+        record.pace = newPace || null;
+        record.date = formattedDate;
+        record.originalDate = newDate;
+        
+        await saveData();
+        updateRecordManagementList();
+        updateMemberList();
+        closeEditRecordModal();
+        alert('기록이 수정되었습니다! ✅');
+        
+    } catch (error) {
+        // 실패 시 원복
+        record.memberId = originalRecord.memberId;
+        record.distance = originalRecord.distance;
+        record.pace = originalRecord.pace;
+        record.date = originalRecord.date;
+        record.originalDate = originalRecord.originalDate;
+        
+        if (oldMember && originalOldMemberStats) {
+            oldMember.totalDistance = originalOldMemberStats.totalDistance;
+            oldMember.recordCount = originalOldMemberStats.recordCount;
+        }
+        
+        if (newMember && originalNewMemberStats) {
+            newMember.totalDistance = originalNewMemberStats.totalDistance;
+            newMember.recordCount = originalNewMemberStats.recordCount;
+        }
+        
+        console.error('Error updating record:', error);
+        alert('기록 수정 중 오류가 발생했습니다: ' + error.message);
     }
-    
-    // 기록 업데이트
-    const recordDate = new Date(newDate);
-    const formattedDate = recordDate.toLocaleDateString('ko-KR');
-    
-    record.memberId = newMemberId;
-    record.distance = newDistance;
-    record.pace = newPace || null;
-    record.date = formattedDate;
-    record.originalDate = newDate;
-    
-    saveData();
-    updateRecordManagementList();
-    updateMemberList();
-    closeEditRecordModal();
-    alert('기록이 수정되었습니다! ✅');
 }
 
 // 기록 수정 모달 닫기
@@ -638,7 +813,129 @@ function showLoading(show) {
 
 // 데이터 저장
 async function saveData() {
-    // TODO: Replace with Amplify Storage API calls
-    // await saveToCloud(members, records, schedules);
-    console.log('Data save temporarily disabled - will be replaced with Amplify Storage API');
+    try {
+        console.log('Saving data to S3...');
+        await saveToCloud(members, records, schedules);
+        console.log('Data saved successfully to S3');
+    } catch (error) {
+        console.error('Error saving data to S3:', error);
+        alert('데이터 저장 중 오류가 발생했습니다: ' + error.message);
+        throw error;
+    }
 }
+// 추
+가된 백업/복원 기능을 위한 유틸리티 함수들
+
+// S3 연결 상태 표시 업데이트
+async function refreshConnectionStatus() {
+    try {
+        const isConnected = await updateConnectionStatus();
+        if (!isConnected) {
+            alert('S3 연결에 실패했습니다. 네트워크 연결을 확인해주세요.');
+        }
+    } catch (error) {
+        console.error('Error refreshing connection status:', error);
+        alert('연결 상태 확인 중 오류가 발생했습니다.');
+    }
+}
+
+// 데이터 동기화 (S3에서 최신 데이터 다시 로드)
+async function syncDataFromS3() {
+    try {
+        showLoading(true);
+        
+        const confirmSync = confirm('S3에서 최신 데이터를 다시 로드하시겠습니까?\n현재 변경사항이 저장되지 않았다면 손실될 수 있습니다.');
+        
+        if (confirmSync) {
+            await initializeData();
+            updateMemberList();
+            updateScheduleList();
+            updateRecordManagementList();
+            alert('데이터가 S3에서 성공적으로 동기화되었습니다! 🔄');
+        }
+        
+    } catch (error) {
+        console.error('Error syncing data from S3:', error);
+        alert('데이터 동기화 중 오류가 발생했습니다: ' + error.message);
+    } finally {
+        showLoading(false);
+    }
+}
+
+// 데이터 무결성 검사
+function validateData() {
+    let issues = [];
+    
+    // 멤버 데이터 검증
+    members.forEach(member => {
+        if (!member.id || !member.name) {
+            issues.push(`멤버 데이터 오류: ID 또는 이름이 없음 (${JSON.stringify(member)})`);
+        }
+        
+        if (typeof member.totalDistance !== 'number' || member.totalDistance < 0) {
+            issues.push(`멤버 ${member.name}: 총 거리 데이터 오류`);
+        }
+        
+        if (typeof member.recordCount !== 'number' || member.recordCount < 0) {
+            issues.push(`멤버 ${member.name}: 기록 수 데이터 오류`);
+        }
+    });
+    
+    // 기록 데이터 검증
+    records.forEach(record => {
+        if (!record.id || !record.memberId || !record.distance) {
+            issues.push(`기록 데이터 오류: 필수 필드 누락 (${JSON.stringify(record)})`);
+        }
+        
+        const member = members.find(m => m.id === record.memberId);
+        if (!member) {
+            issues.push(`기록 ID ${record.id}: 존재하지 않는 멤버 참조 (${record.memberId})`);
+        }
+    });
+    
+    // 스케줄 데이터 검증
+    schedules.forEach(schedule => {
+        if (!schedule.id || !schedule.date || !schedule.time || !schedule.location) {
+            issues.push(`스케줄 데이터 오류: 필수 필드 누락 (${JSON.stringify(schedule)})`);
+        }
+    });
+    
+    if (issues.length > 0) {
+        console.warn('Data validation issues found:', issues);
+        alert(`데이터 무결성 검사에서 ${issues.length}개의 문제를 발견했습니다.\n자세한 내용은 콘솔을 확인하세요.`);
+        return false;
+    } else {
+        alert('데이터 무결성 검사 완료: 문제없음 ✅');
+        return true;
+    }
+}
+
+// 통계 정보 표시
+function showDataStatistics() {
+    const totalMembers = members.length;
+    const totalRecords = records.length;
+    const totalSchedules = schedules.length;
+    const totalDistance = members.reduce((sum, member) => sum + member.totalDistance, 0);
+    
+    const stats = `
+📊 데이터 통계
+
+👥 총 멤버 수: ${totalMembers}명
+🏃 총 기록 수: ${totalRecords}개
+📅 총 스케줄 수: ${totalSchedules}개
+🏁 총 누적 거리: ${totalDistance.toFixed(1)}km
+
+평균 멤버당 거리: ${totalMembers > 0 ? (totalDistance / totalMembers).toFixed(1) : 0}km
+평균 멤버당 기록: ${totalMembers > 0 ? (totalRecords / totalMembers).toFixed(1) : 0}개
+    `;
+    
+    alert(stats);
+}
+
+// 전역 함수로 노출 (HTML에서 호출 가능)
+window.createBackup = createBackup;
+window.listBackups = listBackups;
+window.refreshConnectionStatus = refreshConnectionStatus;
+window.syncDataFromS3 = syncDataFromS3;
+window.validateData = validateData;
+window.showDataStatistics = showDataStatistics;

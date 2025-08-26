@@ -6,7 +6,7 @@
   - Amplify Auth 역할의 버킷 접근 권한 확인
   - _Requirements: 2.1, 5.3_
 
-- [ ] 2. Amplify Storage 설정 확인
+- [x] 2. Amplify Storage 설정 확인
   - amplify_outputs.json 파일 확인
   - S3 버킷 연결 상태 확인
   - Guest 사용자 권한 설정 확인 (public/* 경로)
@@ -19,21 +19,21 @@
   - 기존 Lambda/API Gateway 참조 코드 정리
   - _Requirements: 7.4_
 
-- [ ] 4. Amplify Storage API 통합
+- [x] 4. Amplify Storage API 통합
   - storage-manager.js 파일 생성
   - AmplifyStorageManager 클래스 구현
   - loadData, saveData 메서드 구현
   - 초기 데이터 생성 로직 구현
   - _Requirements: 2.1, 2.5, 3.1, 4.1_
 
-- [ ] 5. 메인 스크립트 파일 업데이트
+- [x] 5. 메인 스크립트 파일 업데이트
   - script.js에서 기존 AWS API 호출 제거
   - AmplifyStorageManager 사용하도록 변경
   - loadFromCloud, saveToCloud 함수 재구현
   - 오류 처리 로직 업데이트
   - _Requirements: 2.1, 3.1, 4.1, 6.2, 6.4_
 
-- [ ] 6. 관리자 페이지 스크립트 업데이트
+- [x] 6. 관리자 페이지 스크립트 업데이트
   - admin.js에서 기존 AWS API 호출 제거
   - AmplifyStorageManager 사용하도록 변경
   - 멤버 관리 기능 S3 연동 업데이트

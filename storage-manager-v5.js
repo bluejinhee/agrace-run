@@ -1,10 +1,8 @@
 /**
- * Amplify Storage Manager
+ * Amplify Storage Manager (v5 compatible)
  * S3 버킷과의 데이터 통신을 관리하는 클래스
  * Requirements: 2.1, 2.5, 3.1, 4.1
  */
-
-// Amplify Storage functions will be available globally after loading the library
 
 class AmplifyStorageManager {
     constructor() {
@@ -24,13 +22,11 @@ class AmplifyStorageManager {
             console.log(`Loading data from S3: ${fileName}`);
             
             const result = await window.aws_amplify.Storage.get(fileName, {
-                path: `public/${fileName}`,
-                options: {
-                    bucket: this.bucketName
-                }
-            }).result;
+                download: true,
+                bucket: this.bucketName
+            });
             
-            const text = await result.body.text();
+            const text = await result.Body.text();
             const data = JSON.parse(text);
             
             console.log(`Successfully loaded ${fileName}:`, data);
@@ -40,7 +36,7 @@ class AmplifyStorageManager {
             console.log(`File ${fileName} not found or error occurred:`, error);
             
             // NoSuchKey 오류인 경우 초기 데이터 반환
-            if (error.name === 'NoSuchKey' || error.message?.includes('NoSuchKey')) {
+            if (error.code === 'NoSuchKey' || error.message?.includes('NoSuchKey')) {
                 console.log(`Creating initial data for ${fileName}`);
                 const initialData = this.getInitialData(fileName);
                 
@@ -72,14 +68,10 @@ class AmplifyStorageManager {
             
             const jsonString = JSON.stringify(dataWithTimestamp, null, 2);
             
-            await window.aws_amplify_storage.uploadData({
-                path: `public/${fileName}`,
-                data: jsonString,
-                options: {
-                    bucket: this.bucketName,
-                    contentType: 'application/json'
-                }
-            }).result;
+            await window.aws_amplify.Storage.put(fileName, jsonString, {
+                contentType: 'application/json',
+                bucket: this.bucketName
+            });
             
             console.log(`Successfully saved ${fileName} to S3`);
             
@@ -232,14 +224,10 @@ class AmplifyStorageManager {
     async checkConnection() {
         try {
             // 간단한 list 작업으로 연결 상태 확인
-            await window.aws_amplify_storage.list({
-                path: 'public/',
-                options: {
-                    bucket: this.bucketName,
-                    listAll: false,
-                    pageSize: 1
-                }
-            }).result;
+            await window.aws_amplify.Storage.list('', {
+                bucket: this.bucketName,
+                pageSize: 1
+            });
             
             return true;
         } catch (error) {
@@ -258,7 +246,7 @@ class AmplifyStorageManager {
     handleStorageError(error, operation, fileName) {
         let userMessage = '';
         
-        switch (error.name) {
+        switch (error.code || error.name) {
             case 'NoSuchKey':
                 userMessage = `파일을 찾을 수 없습니다: ${fileName}`;
                 break;
@@ -371,6 +359,3 @@ window.updateConnectionStatus = async function() {
 // AmplifyStorageManager 클래스를 전역으로 노출
 window.AmplifyStorageManager = AmplifyStorageManager;
 window.storageManager = storageManager;
-
-export default AmplifyStorageManager;
-export { storageManager };

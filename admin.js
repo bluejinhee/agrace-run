@@ -5,7 +5,14 @@ let schedules = [];
 
 // 초기 데이터 로드
 async function initializeData() {
-    const data = await loadFromCloud();
+    // TODO: Replace with Amplify Storage API calls
+    // const data = await loadFromCloud();
+    // Temporary fallback to empty data until Amplify Storage is implemented
+    const data = {
+        members: [],
+        records: [],
+        schedules: []
+    };
     members = data.members || [];
     records = data.records || [];
     schedules = data.schedules || [];
@@ -25,8 +32,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         updateScheduleList();
         updateRecordManagementList();
         
-        // 연결 상태 업데이트
-        await updateConnectionStatus();
+        // TODO: Replace with Amplify connection status check
+        // await updateConnectionStatus();
         
     } catch (error) {
         console.error('초기화 오류:', error);
@@ -631,5 +638,7 @@ function showLoading(show) {
 
 // 데이터 저장
 async function saveData() {
-    await saveToCloud(members, records, schedules);
+    // TODO: Replace with Amplify Storage API calls
+    // await saveToCloud(members, records, schedules);
+    console.log('Data save temporarily disabled - will be replaced with Amplify Storage API');
 }

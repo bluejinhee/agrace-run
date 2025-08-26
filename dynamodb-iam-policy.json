@@ -1,0 +1,45 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DynamoDBTableAccess",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:ap-northeast-1:*:table/RunningClub-Members",
+        "arn:aws:dynamodb:ap-northeast-1:*:table/RunningClub-Records",
+        "arn:aws:dynamodb:ap-northeast-1:*:table/RunningClub-Schedules"
+      ]
+    },
+    {
+      "Sid": "DynamoDBIndexAccess",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:Query",
+        "dynamodb:Scan"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:ap-northeast-1:*:table/RunningClub-Records/index/memberId-date-index",
+        "arn:aws:dynamodb:ap-northeast-1:*:table/RunningClub-Schedules/index/date-index"
+      ]
+    },
+    {
+      "Sid": "DynamoDBDescribeAccess",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:DescribeTable",
+        "dynamodb:ListTables"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

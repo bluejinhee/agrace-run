@@ -1,0 +1,111 @@
+.scheduleForm {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.scheduleList {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.scheduleList h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.noSchedules {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+  font-style: italic;
+}
+
+.scheduleItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border-left: 4px solid #28a745;
+}
+
+.scheduleInfo {
+  flex: 1;
+}
+
+.scheduleDateTime {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.scheduleLocation {
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.scheduleDescription {
+  color: #666;
+  font-size: 0.9em;
+  font-style: italic;
+}
+
+.scheduleActions {
+  display: flex;
+  gap: 8px;
+}
+
+.editButton, .deleteButton {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: all 0.2s ease;
+  min-width: 40px;
+}
+
+.editButton {
+  background: #28a745;
+  color: white;
+}
+
+.editButton:hover {
+  background: #218838;
+}
+
+.deleteButton {
+  background: #dc3545;
+  color: white;
+}
+
+.deleteButton:hover {
+  background: #c82333;
+}
+
+.editButton:disabled, .deleteButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .scheduleItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .scheduleActions {
+    align-self: stretch;
+    justify-content: flex-end;
+  }
+}

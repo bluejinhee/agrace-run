@@ -1,0 +1,80 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - echo "Starting build process for Running Club Next.js app"
+        - echo "Node version" && node --version
+        - echo "NPM version" && npm --version
+        - echo "Installing dependencies..."
+        - npm install --no-audit --no-fund
+        - echo "Generating package-lock.json if needed..."
+        - ls -la package-lock.json || echo "package-lock.json not found, will be created"
+        - echo "Dependencies installed successfully"
+        - echo "=== DynamoDB Setup and Verification ==="
+        - echo "AWS Region - $AWS_REGION"
+        - echo "Checking AWS credentials..."
+        - aws sts get-caller-identity || echo "AWS credentials check failed"
+        - echo "Checking DynamoDB service availability..."
+        - aws dynamodb list-tables --region $AWS_REGION --max-items 1 || echo "DynamoDB service check failed"
+        - echo "DynamoDB tables already exist - ready for data operations"
+        - echo "Testing DynamoDB connection..."
+        - timeout 30s npm run test-db-quick 2>&1 || echo "WARNING - DynamoDB connection issue or timeout"
+        - echo "=== DynamoDB Setup Complete ==="
+    build:
+      commands:
+        - echo "Building Next.js application..."
+        - echo "Environment - $NODE_ENV"
+        - echo "AWS Region - $AWS_REGION"
+        - npm run export
+        - echo "Next.js static export completed successfully"
+    postBuild:
+      commands:
+        - echo "Preparing deployment artifacts..."
+        - echo "Build process completed successfully"
+  artifacts:
+    baseDirectory: out
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*
+  customHeaders:
+    - pattern: '**/*'
+      headers:
+        - key: 'Strict-Transport-Security'
+          value: 'max-age=31536000; includeSubDomains'
+        - key: 'X-Content-Type-Options'
+          value: 'nosniff'
+        - key: 'X-Frame-Options'
+          value: 'DENY'
+        - key: 'X-XSS-Protection'
+          value: '1; mode=block'
+        - key: 'Referrer-Policy'
+          value: 'strict-origin-when-cross-origin'
+    - pattern: '/api/**'
+      headers:
+        - key: 'Cache-Control'
+          value: 'no-cache, no-store, must-revalidate'
+    - pattern: '/_next/static/**'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=31536000, immutable'
+  environmentVariables:
+    - name: NODE_ENV
+      value: production
+    - name: AWS_REGION
+      value: ap-northeast-1
+    - name: NEXT_TELEMETRY_DISABLED
+      value: 1
+    - name: NEXT_PUBLIC_AWS_REGION
+      value: ap-northeast-1
+    - name: NEXT_PUBLIC_COGNITO_IDENTITY_POOL_ID
+      value: ap-northeast-1:bedcbab1-5b3e-4426-b376-e65a251fca51
+    - name: NEXT_PUBLIC_DYNAMODB_MEMBERS_TABLE
+      value: RunningClub-Members
+    - name: NEXT_PUBLIC_DYNAMODB_RECORDS_TABLE
+      value: RunningClub-Records
+    - name: NEXT_PUBLIC_DYNAMODB_SCHEDULES_TABLE
+      value: RunningClub-Schedules

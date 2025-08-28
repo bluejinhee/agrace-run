@@ -1,0 +1,280 @@
+.milestoneManagement {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.addButton {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.addButton:hover {
+  background: #0056b3;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalContent h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+}
+
+.formGroup {
+  margin-bottom: 16px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: #555;
+}
+
+.formGroup input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.saveButton {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.saveButton:hover {
+  background: #218838;
+}
+
+.cancelButton {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.cancelButton:hover {
+  background: #5a6268;
+}
+
+.milestoneList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.emptyState p {
+  margin: 8px 0;
+}
+
+.milestoneCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #f8f9fa;
+  transition: all 0.2s;
+}
+
+.milestoneCard:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.milestoneCard.inactive {
+  opacity: 0.6;
+  background: #f5f5f5;
+}
+
+.milestoneInfo {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.milestoneTarget {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #007bff;
+  min-width: 80px;
+}
+
+.milestoneReward {
+  font-size: 1rem;
+  color: #333;
+  flex: 1;
+}
+
+.milestoneStatus {
+  font-size: 0.9rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #e9ecef;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.milestoneActions {
+  display: flex;
+  gap: 8px;
+}
+
+.toggleButton {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.toggleButton.active {
+  background: #ffc107;
+  color: #212529;
+}
+
+.toggleButton.active:hover {
+  background: #e0a800;
+}
+
+.toggleButton.inactive {
+  background: #28a745;
+  color: white;
+}
+
+.toggleButton.inactive:hover {
+  background: #218838;
+}
+
+.editButton {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.editButton:hover {
+  background: #138496;
+}
+
+.deleteButton {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.deleteButton:hover {
+  background: #c82333;
+}
+
+@media (max-width: 768px) {
+  .milestoneCard {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .milestoneInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .milestoneActions {
+    justify-content: flex-end;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .modalContent {
+    margin: 20px;
+    width: calc(100% - 40px);
+  }
+}

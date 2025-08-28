@@ -42,12 +42,16 @@ export function DataManagement() {
         version: '2.0'
       };
 
-      // S3의 backups 폴더에 백업 저장
-      const backupFileName = `backups/backup-${timestamp}.json`;
-      const storageManager = StorageManager.getInstance();
-      
-      await storageManager.saveData(backupFileName, backupData);
-      alert(`백업이 S3에 생성되었습니다! 📦\n파일명: ${backupFileName}`);
+      // DynamoDB 환경에서는 로컬 파일로 백업 다운로드
+      const dataStr = JSON.stringify(backupData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(dataBlob);
+      link.download = `backup-${timestamp}.json`;
+      link.click();
+
+      alert(`백업이 로컬에 다운로드되었습니다! 📦\n파일명: backup-${timestamp}.json`);
     } catch (error) {
       console.error('Error creating backup:', error);
       alert('백업 생성 중 오류가 발생했습니다: ' + (error as Error).message);
@@ -57,85 +61,12 @@ export function DataManagement() {
   };
 
   const listBackups = async () => {
-    setLoading(true);
-    try {
-      const storageManager = StorageManager.getInstance();
-      
-      // S3에서 백업 파일 목록 조회
-      const backupFiles = await storageManager.listBackups();
-
-      if (backupFiles.length === 0) {
-        alert('백업 파일이 없습니다.');
-        return;
-      }
-
-      // 백업 목록을 사용자에게 표시
-      let backupList = '사용 가능한 백업:\n\n';
-      backupFiles.forEach((file, index) => {
-        const fileName = file.key.split('/').pop();
-        const date = new Date(file.lastModified).toLocaleString('ko-KR');
-        backupList += `${index + 1}. ${fileName}\n   생성일: ${date}\n\n`;
-      });
-
-      const selection = prompt(backupList + '\n복원할 백업 번호를 입력하세요 (취소하려면 빈 값):');
-
-      if (selection && !isNaN(Number(selection))) {
-        const selectedIndex = parseInt(selection) - 1;
-        if (selectedIndex >= 0 && selectedIndex < backupFiles.length) {
-          const selectedFile = backupFiles[selectedIndex];
-          await restoreFromBackup(selectedFile.key);
-        } else {
-          alert('잘못된 번호입니다.');
-        }
-      }
-    } catch (error) {
-      console.error('Error listing backups:', error);
-      alert('백업 목록 조회 중 오류가 발생했습니다: ' + (error as Error).message);
-    } finally {
-      setLoading(false);
-    }
+    alert('DynamoDB 환경에서는 로컬 백업 파일을 사용해주세요.\n\n백업 복원 방법:\n1. "📦 백업 생성"으로 현재 데이터 백업\n2. "📥 데이터 가져오기"로 백업 파일 복원');
   };
 
   const restoreFromBackup = async (backupPath: string) => {
-    const confirmRestore = confirm(
-      '현재 데이터를 백업 데이터로 덮어쓰시겠습니까?\n이 작업은 되돌릴 수 없습니다.'
-    );
-
-    if (!confirmRestore) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const storageManager = StorageManager.getInstance();
-      
-      // 백업 파일에서 데이터 로드
-      const backupData = await storageManager.loadData(backupPath);
-
-      if (backupData.members && Array.isArray(backupData.members)) {
-        // 현재 데이터를 백업으로 저장
-        await createBackup();
-
-        // 새 데이터로 교체하고 저장
-        const newData = {
-          members: backupData.members,
-          records: backupData.records || [],
-          schedules: backupData.schedules || []
-        };
-
-        await saveData(newData);
-        await loadData(); // UI 새로고침
-
-        alert('백업에서 데이터가 성공적으로 복원되었습니다! 🔄');
-      } else {
-        alert('백업 파일 형식이 올바르지 않습니다.');
-      }
-    } catch (error) {
-      console.error('Error restoring from backup:', error);
-      alert('백업 복원 중 오류가 발생했습니다: ' + (error as Error).message);
-    } finally {
-      setLoading(false);
-    }
+    // DynamoDB 환경에서는 사용하지 않음
+    alert('DynamoDB 환경에서는 "📥 데이터 가져오기" 기능을 사용해주세요.');
   };
 
   const importData = () => {
@@ -230,16 +161,16 @@ export function DataManagement() {
     }
   };
 
-  const syncDataFromS3 = async () => {
+  const syncDataFromDynamoDB = async () => {
     const confirmSync = confirm(
-      'S3에서 최신 데이터를 다시 로드하시겠습니까?\n현재 변경사항이 저장되지 않았다면 손실될 수 있습니다.'
+      'DynamoDB에서 최신 데이터를 다시 로드하시겠습니까?\n현재 변경사항이 저장되지 않았다면 손실될 수 있습니다.'
     );
 
     if (confirmSync) {
       setLoading(true);
       try {
         await loadData();
-        alert('S3에서 최신 데이터를 성공적으로 로드했습니다! 🔄');
+        alert('DynamoDB에서 최신 데이터를 성공적으로 로드했습니다! 🔄');
       } catch (error) {
         console.error('Error syncing data:', error);
         alert('데이터 동기화 중 오류가 발생했습니다: ' + (error as Error).message);
@@ -255,7 +186,7 @@ export function DataManagement() {
       
       <div className={styles.dataButtons}>
         <div className={styles.buttonGroup}>
-          <h3>로컬 백업</h3>
+          <h3>데이터 내보내기/가져오기</h3>
           <button 
             onClick={exportData} 
             className={styles.exportButton}
@@ -273,31 +204,31 @@ export function DataManagement() {
         </div>
 
         <div className={styles.buttonGroup}>
-          <h3>클라우드 백업</h3>
+          <h3>로컬 백업</h3>
           <button 
             onClick={createBackup} 
             className={styles.backupButton}
             disabled={loading}
           >
-            {loading ? '백업 중...' : '📦 S3 백업 생성'}
+            {loading ? '백업 중...' : '📦 백업 생성'}
           </button>
           <button 
             onClick={listBackups} 
             className={styles.restoreButton}
             disabled={loading}
           >
-            {loading ? '조회 중...' : '🔄 백업에서 복원'}
+            💡 백업 복원 안내
           </button>
         </div>
 
         <div className={styles.buttonGroup}>
           <h3>데이터 관리</h3>
           <button 
-            onClick={syncDataFromS3} 
+            onClick={syncDataFromDynamoDB} 
             className={styles.syncButton}
             disabled={loading}
           >
-            {loading ? '동기화 중...' : '🔄 S3 동기화'}
+            {loading ? '동기화 중...' : '🔄 DynamoDB 동기화'}
           </button>
           <button 
             onClick={resetData} 

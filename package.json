@@ -13,7 +13,9 @@
     "setup-dynamodb": "node setup-dynamodb.js",
     "create-tables": "node create-dynamodb-tables.js",
     "verify-dynamodb": "node setup-dynamodb.js verify",
-    "delete-tables": "node setup-dynamodb.js delete"
+    "delete-tables": "node setup-dynamodb.js delete",
+    "test-db": "node test-dynamodb-connection.js",
+    "test-db-quick": "node test-dynamodb-connection.js quick"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.0.0",

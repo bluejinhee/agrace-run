@@ -6,7 +6,7 @@ import { Record, Member } from '../../types';
 import styles from './RecordManagement.module.css';
 
 interface EditRecordForm {
-  memberId: number;
+  memberId: string;
   distance: number;
   pace: string;
   date: string;
@@ -16,7 +16,7 @@ export function RecordManagement() {
   const { data, updateRecord, deleteRecord } = useApp();
   const [editingRecord, setEditingRecord] = useState<Record | null>(null);
   const [editForm, setEditForm] = useState<EditRecordForm>({
-    memberId: 0,
+    memberId: '',
     distance: 0,
     pace: '',
     date: ''
@@ -29,7 +29,7 @@ export function RecordManagement() {
       memberId: record.memberId,
       distance: record.distance,
       pace: record.pace || '',
-      date: record.originalDate || record.date
+      date: record.date
     });
   };
 
@@ -83,13 +83,12 @@ export function RecordManagement() {
         memberId,
         distance,
         pace: pace || undefined,
-        date: formattedDate,
-        originalDate: date
+        date: formattedDate
       });
 
       setEditingRecord(null);
       setEditForm({
-        memberId: 0,
+        memberId: '',
         distance: 0,
         pace: '',
         date: ''
@@ -107,14 +106,14 @@ export function RecordManagement() {
   const handleCancelEdit = () => {
     setEditingRecord(null);
     setEditForm({
-      memberId: 0,
+      memberId: '',
       distance: 0,
       pace: '',
       date: ''
     });
   };
 
-  const handleRemoveRecord = async (recordId: number) => {
+  const handleRemoveRecord = async (recordId: string) => {
     const record = data.records.find(r => r.id === recordId);
     if (!record) return;
 
@@ -141,10 +140,7 @@ export function RecordManagement() {
 
   // 날짜순으로 정렬 (최신순)
   const sortedRecords = [...data.records].sort((a, b) => {
-    if (a.originalDate && b.originalDate) {
-      return new Date(b.originalDate).getTime() - new Date(a.originalDate).getTime();
-    }
-    return b.id - a.id;
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
 
   return (

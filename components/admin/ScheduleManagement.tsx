@@ -8,6 +8,7 @@ import styles from './ScheduleManagement.module.css';
 export function ScheduleManagement() {
   const { data, addSchedule, updateSchedule, deleteSchedule } = useApp();
   const [scheduleForm, setScheduleForm] = useState({
+    title: '',
     date: '',
     time: '',
     location: '',
@@ -47,6 +48,7 @@ export function ScheduleManagement() {
     setLoading(true);
     try {
       await addSchedule({
+        title: scheduleForm.title.trim(),
         date,
         time,
         location: location.trim(),
@@ -54,6 +56,7 @@ export function ScheduleManagement() {
       });
 
       setScheduleForm({
+        title: '',
         date: '',
         time: '',
         location: '',
@@ -72,9 +75,10 @@ export function ScheduleManagement() {
   const handleEditSchedule = (schedule: Schedule) => {
     setEditingSchedule(schedule);
     setScheduleForm({
+      title: schedule.title,
       date: schedule.date,
-      time: schedule.time,
-      location: schedule.location,
+      time: schedule.time || '',
+      location: schedule.location || '',
       description: schedule.description || ''
     });
   };
@@ -110,6 +114,7 @@ export function ScheduleManagement() {
 
       setEditingSchedule(null);
       setScheduleForm({
+        title: '',
         date: '',
         time: '',
         location: '',
@@ -128,6 +133,7 @@ export function ScheduleManagement() {
   const handleCancelEdit = () => {
     setEditingSchedule(null);
     setScheduleForm({
+      title: '',
       date: '',
       time: '',
       location: '',
@@ -135,7 +141,7 @@ export function ScheduleManagement() {
     });
   };
 
-  const handleRemoveSchedule = async (scheduleId: number) => {
+  const handleRemoveSchedule = async (scheduleId: string) => {
     const schedule = data.schedules.find(s => s.id === scheduleId);
     if (!schedule) return;
 

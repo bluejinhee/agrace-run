@@ -75,6 +75,9 @@ export function calculateMemberStats(member: Member, records: Record[]): MemberS
     ? memberRecords.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0].date
     : undefined;
   
+  const totalDistance = memberRecords.reduce((sum, record) => sum + record.distance, 0);
+  const recordCount = memberRecords.length;
+
   return {
     member,
     rank: 0, // 이후에 전체 멤버 순위 계산 시 설정
@@ -82,7 +85,9 @@ export function calculateMemberStats(member: Member, records: Record[]): MemberS
     lastRunDate,
     weeklyDistance: weeklyRecords.reduce((sum, record) => sum + record.distance, 0),
     monthlyDistance: monthlyRecords.reduce((sum, record) => sum + record.distance, 0),
-    averageDistance: member.recordCount > 0 ? member.totalDistance / member.recordCount : 0,
+    averageDistance: recordCount > 0 ? totalDistance / recordCount : 0,
+    totalDistance,
+    recordCount
   };
 }
 
@@ -90,10 +95,13 @@ export function calculateMemberStats(member: Member, records: Record[]): MemberS
  * 팀 통계 계산
  */
 export function calculateTeamStats(members: Member[], records: Record[]): TeamStats {
-  const totalDistance = members.reduce((sum, member) => sum + member.totalDistance, 0);
+  const totalDistance = records.reduce((sum, record) => sum + record.distance, 0);
   const totalRecords = records.length;
   const averageDistance = totalRecords > 0 ? totalDistance / totalRecords : 0;
-  const activeMembers = members.filter(member => member.recordCount > 0).length;
+  
+  // 활성 멤버 수 (기록이 있는 멤버)
+  const membersWithRecords = new Set(records.map(record => record.memberId));
+  const activeMembers = membersWithRecords.size;
   
   // 주간 목표 진행률 (최근 7일)
   const weekAgo = new Date();
@@ -142,7 +150,7 @@ export function calculateAveragePace(paces: string[]): string {
  */
 export function calculateMemberRanks(memberStats: MemberStats[]): MemberStats[] {
   return memberStats
-    .sort((a, b) => b.member.totalDistance - a.member.totalDistance)
+    .sort((a, b) => b.totalDistance - a.totalDistance)
     .map((stats, index) => ({
       ...stats,
       rank: index + 1,

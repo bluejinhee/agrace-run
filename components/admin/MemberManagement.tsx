@@ -10,6 +10,14 @@ export function MemberManagement() {
   const [memberName, setMemberName] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // 멤버별 통계 계산
+  const getMemberStats = (memberId: string) => {
+    const memberRecords = data.records.filter(record => record.memberId === memberId);
+    const totalDistance = memberRecords.reduce((sum, record) => sum + record.distance, 0);
+    const recordCount = memberRecords.length;
+    return { totalDistance, recordCount };
+  };
+
   const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -37,7 +45,7 @@ export function MemberManagement() {
     }
   };
 
-  const handleRemoveMember = async (memberId: number) => {
+  const handleRemoveMember = async (memberId: string) => {
     const member = data.members.find(m => m.id === memberId);
     if (!member) return;
 
@@ -59,7 +67,7 @@ export function MemberManagement() {
     }
   };
 
-  const handleEditMemberName = async (memberId: number) => {
+  const handleEditMemberName = async (memberId: string) => {
     const member = data.members.find(m => m.id === memberId);
     if (!member) return;
 
@@ -114,16 +122,18 @@ export function MemberManagement() {
           {sortedMembers.length === 0 ? (
             <div className={styles.noMembers}>등록된 멤버가 없습니다.</div>
           ) : (
-            sortedMembers.map(member => (
-              <div key={member.id} className={styles.memberItem}>
-                <div className={styles.memberInfo}>
-                  <div className={styles.memberName}>{member.name}</div>
-                  <div className={styles.memberDetails}>
-                    <span>총 거리: {member.totalDistance.toFixed(1)}km</span>
-                    <span>출석: {member.recordCount}회</span>
-                    <span>가입일: {member.joinDate}</span>
+            sortedMembers.map(member => {
+              const stats = getMemberStats(member.id);
+              return (
+                <div key={member.id} className={styles.memberItem}>
+                  <div className={styles.memberInfo}>
+                    <div className={styles.memberName}>{member.name}</div>
+                    <div className={styles.memberDetails}>
+                      <span>총 거리: {stats.totalDistance.toFixed(1)}km</span>
+                      <span>출석: {stats.recordCount}회</span>
+                      <span>가입일: {member.joinDate}</span>
+                    </div>
                   </div>
-                </div>
                 <div className={styles.memberActions}>
                   <button
                     onClick={() => handleEditMemberName(member.id)}
@@ -141,7 +151,8 @@ export function MemberManagement() {
                   </button>
                 </div>
               </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

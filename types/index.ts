@@ -103,6 +103,8 @@ export interface MemberStats {
   weeklyDistance: number;
   monthlyDistance: number;
   averageDistance: number;
+  totalDistance: number;
+  recordCount: number;
 }
 
 export interface TeamStats {

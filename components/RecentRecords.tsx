@@ -42,14 +42,14 @@ export function RecentRecords({ members, records, maxRecords = 10 }: RecentRecor
     const now = new Date();
     const diffTime = now.getTime() - recordDate.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return '오늘';
     if (diffDays === 1) return '어제';
     if (diffDays < 7) return `${diffDays}일 전`;
-    
-    return recordDate.toLocaleDateString('ko-KR', { 
-      month: 'short', 
-      day: 'numeric' 
+
+    return recordDate.toLocaleDateString('ko-KR', {
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -109,12 +109,12 @@ export function RecentRecords({ members, records, maxRecords = 10 }: RecentRecor
                   <span className={styles.recordTime}>{formatTime(record)}</span>
                 </div>
               </div>
-              
+
               <div className={styles.recordStats}>
                 <div className={`${styles.distance} ${getDistanceColor(record.distance)}`}>
                   {record.distance.toFixed(1)}km
                 </div>
-                
+
                 {record.pace && (
                   <div className={`${styles.pace} ${getPaceColor(record.pace)}`}>
                     {record.pace}
@@ -122,27 +122,27 @@ export function RecentRecords({ members, records, maxRecords = 10 }: RecentRecor
                 )}
               </div>
             </div>
-            
+
             <div className={styles.recordDetails}>
               <div className={styles.detailItem}>
                 <span className={styles.detailLabel}>거리</span>
                 <span className={styles.detailValue}>{record.distance.toFixed(1)}km</span>
               </div>
-              
+
               {record.pace && (
                 <div className={styles.detailItem}>
                   <span className={styles.detailLabel}>페이스</span>
                   <span className={styles.detailValue}>{record.pace}/km</span>
                 </div>
               )}
-              
+
               <div className={styles.detailItem}>
                 <span className={styles.detailLabel}>날짜</span>
                 <span className={styles.detailValue}>
                   {new Date(record.date).toLocaleDateString('ko-KR')}
                 </span>
               </div>
-              
+
               <div className={styles.detailItem}>
                 <span className={styles.detailLabel}>등록시간</span>
                 <span className={styles.detailValue}>
@@ -156,7 +156,7 @@ export function RecentRecords({ members, records, maxRecords = 10 }: RecentRecor
 
       {records.length > maxRecords && (
         <div className={styles.showMoreContainer}>
-          <button 
+          <button
             className={styles.showMoreButton}
             onClick={() => setShowAll(!showAll)}
           >
@@ -189,7 +189,7 @@ export function RecentRecords({ members, records, maxRecords = 10 }: RecentRecor
             }).length}개
           </span>
         </div>
-        
+
         <div className={styles.summaryItem}>
           <span className={styles.summaryLabel}>이번 달 기록</span>
           <span className={styles.summaryValue}>

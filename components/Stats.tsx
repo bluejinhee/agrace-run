@@ -59,6 +59,10 @@ export function Stats({ members, records }: StatsProps) {
         .filter(record => new Date(record.date) >= startOfMonth)
         .reduce((sum, record) => sum + record.distance, 0);
       
+      // 총 거리와 기록 수 계산
+      const totalDistance = memberRecords.reduce((sum, record) => sum + record.distance, 0);
+      const recordCount = memberRecords.length;
+      
       return {
         member,
         rank: 0, // 나중에 설정
@@ -66,12 +70,14 @@ export function Stats({ members, records }: StatsProps) {
         lastRunDate,
         weeklyDistance,
         monthlyDistance,
-        averageDistance: member.recordCount > 0 ? member.totalDistance / member.recordCount : 0
+        averageDistance: recordCount > 0 ? totalDistance / recordCount : 0,
+        totalDistance,
+        recordCount
       };
     });
     
     // 총 거리 기준으로 순위 매기기
-    const sortedByDistance = [...stats].sort((a, b) => b.member.totalDistance - a.member.totalDistance);
+    const sortedByDistance = [...stats].sort((a, b) => b.totalDistance - a.totalDistance);
     sortedByDistance.forEach((stat, index) => {
       stat.rank = index + 1;
     });
@@ -93,12 +99,12 @@ export function Stats({ members, records }: StatsProps) {
           bValue = b.member.name;
           break;
         case 'totalDistance':
-          aValue = a.member.totalDistance;
-          bValue = b.member.totalDistance;
+          aValue = a.totalDistance;
+          bValue = b.totalDistance;
           break;
         case 'recordCount':
-          aValue = a.member.recordCount;
-          bValue = b.member.recordCount;
+          aValue = a.recordCount;
+          bValue = b.recordCount;
           break;
         case 'averageDistance':
           aValue = a.averageDistance;
@@ -260,12 +266,12 @@ export function Stats({ members, records }: StatsProps) {
                 </td>
                 <td className={styles.distanceCell}>
                   <span className={styles.totalDistance}>
-                    {stat.member.totalDistance.toFixed(1)}km
+                    {stat.totalDistance.toFixed(1)}km
                   </span>
                 </td>
                 <td className={styles.countCell}>
                   <span className={styles.recordCount}>
-                    {stat.member.recordCount}회
+                    {stat.recordCount}회
                   </span>
                 </td>
                 <td className={styles.averageCell}>

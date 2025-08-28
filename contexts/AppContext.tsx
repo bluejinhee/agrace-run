@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { Member, Record, Schedule, AppData, NewRecord } from '../types';
+import { Member, Record, Schedule, AppData, NewRecord, NewSchedule } from '../types';
 import { StorageManager } from '../lib/storage';
 import { handleStorageError } from '../lib/errorHandler';
 
@@ -18,25 +18,25 @@ type AppAction =
   | { type: 'SET_DATA'; payload: AppData }
   | { type: 'SET_CONNECTION_STATUS'; payload: 'online' | 'offline' }
   | { type: 'ADD_MEMBER'; payload: Member }
-  | { type: 'UPDATE_MEMBER'; payload: { id: number; updates: Partial<Member> } }
-  | { type: 'DELETE_MEMBER'; payload: number }
+  | { type: 'UPDATE_MEMBER'; payload: { id: string; updates: Partial<Member> } }
+  | { type: 'DELETE_MEMBER'; payload: string }
   | { type: 'ADD_RECORD'; payload: Record }
-  | { type: 'UPDATE_RECORD'; payload: { id: number; updates: Partial<Record> } }
-  | { type: 'DELETE_RECORD'; payload: number }
+  | { type: 'UPDATE_RECORD'; payload: { id: string; updates: Partial<Record> } }
+  | { type: 'DELETE_RECORD'; payload: string }
   | { type: 'ADD_SCHEDULE'; payload: Schedule }
-  | { type: 'UPDATE_SCHEDULE'; payload: { id: number; updates: Partial<Schedule> } }
-  | { type: 'DELETE_SCHEDULE'; payload: number };
+  | { type: 'UPDATE_SCHEDULE'; payload: { id: string; updates: Partial<Schedule> } }
+  | { type: 'DELETE_SCHEDULE'; payload: string };
 
 interface AppContextType extends AppState {
   addMember: (name: string) => Promise<void>;
   addRecord: (record: NewRecord) => Promise<void>;
-  addSchedule: (schedule: Omit<Schedule, 'id' | 'createdAt'>) => Promise<void>;
-  updateMember: (id: number, updates: Partial<Member>) => Promise<void>;
-  updateRecord: (id: number, updates: Partial<Record>) => Promise<void>;
-  updateSchedule: (id: number, updates: Partial<Schedule>) => Promise<void>;
-  deleteMember: (id: number) => Promise<void>;
-  deleteRecord: (id: number) => Promise<void>;
-  deleteSchedule: (id: number) => Promise<void>;
+  addSchedule: (schedule: NewSchedule) => Promise<void>;
+  updateMember: (id: string, updates: Partial<Member>) => Promise<void>;
+  updateRecord: (id: string, updates: Partial<Record>) => Promise<void>;
+  updateSchedule: (id: string, updates: Partial<Schedule>) => Promise<void>;
+  deleteMember: (id: string) => Promise<void>;
+  deleteRecord: (id: string) => Promise<void>;
+  deleteSchedule: (id: string) => Promise<void>;
   refreshData: () => Promise<void>;
   loadData: () => Promise<void>;
   saveData: (data: AppData) => Promise<void>;
@@ -100,22 +100,10 @@ function appReducer(state: AppState, action: AppAction): AppState {
       };
     
     case 'ADD_RECORD':
-      const updatedMembers = state.data.members.map(member => {
-        if (member.id === action.payload.memberId) {
-          return {
-            ...member,
-            totalDistance: member.totalDistance + action.payload.distance,
-            recordCount: member.recordCount + 1
-          };
-        }
-        return member;
-      });
-      
       return {
         ...state,
         data: {
           ...state.data,
-          members: updatedMembers,
           records: [...state.data.records, action.payload]
         }
       };
@@ -134,25 +122,10 @@ function appReducer(state: AppState, action: AppAction): AppState {
       };
     
     case 'DELETE_RECORD':
-      const recordToDelete = state.data.records.find(record => record.id === action.payload);
-      if (!recordToDelete) return state;
-      
-      const membersAfterRecordDelete = state.data.members.map(member => {
-        if (member.id === recordToDelete.memberId) {
-          return {
-            ...member,
-            totalDistance: Math.max(0, member.totalDistance - recordToDelete.distance),
-            recordCount: Math.max(0, member.recordCount - 1)
-          };
-        }
-        return member;
-      });
-      
       return {
         ...state,
         data: {
           ...state.data,
-          members: membersAfterRecordDelete,
           records: state.data.records.filter(record => record.id !== action.payload)
         }
       };
@@ -242,12 +215,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addMember = async (name: string) => {
+    const now = new Date().toISOString();
     const newMember: Member = {
-      id: Date.now(),
+      id: Date.now().toString(),
       name,
-      totalDistance: 0,
-      recordCount: 0,
-      joinDate: new Date().toISOString().split('T')[0]
+      joinDate: new Date().toISOString().split('T')[0],
+      createdAt: now,
+      updatedAt: now
     };
 
     dispatch({ type: 'ADD_MEMBER', payload: newMember });
@@ -265,14 +239,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addRecord = async (record: NewRecord) => {
+    const now = new Date().toISOString();
     const newRecord: Record = {
-      id: Date.now(),
+      id: Date.now().toString(),
       memberId: record.memberId,
       distance: record.distance,
       pace: record.pace,
       date: record.date,
       time: new Date().toLocaleTimeString('ko-KR'),
-      originalDate: new Date().toISOString()
+      createdAt: now,
+      updatedAt: now
     };
 
     dispatch({ type: 'ADD_RECORD', payload: newRecord });
@@ -280,17 +256,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const updatedData = {
         ...state.data,
-        records: [...state.data.records, newRecord],
-        members: state.data.members.map(member => {
-          if (member.id === record.memberId) {
-            return {
-              ...member,
-              totalDistance: member.totalDistance + record.distance,
-              recordCount: member.recordCount + 1
-            };
-          }
-          return member;
-        })
+        records: [...state.data.records, newRecord]
       };
       
       await saveData(updatedData);
@@ -301,11 +267,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addSchedule = async (scheduleData: Omit<Schedule, 'id' | 'createdAt'>) => {
+  const addSchedule = async (scheduleData: NewSchedule) => {
+    const now = new Date().toISOString();
     const newSchedule: Schedule = {
-      id: Date.now(),
+      id: Date.now().toString(),
       ...scheduleData,
-      createdAt: new Date().toISOString()
+      createdAt: now,
+      updatedAt: now
     };
 
     dispatch({ type: 'ADD_SCHEDULE', payload: newSchedule });
@@ -322,7 +290,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateMember = async (id: number, updates: Partial<Member>) => {
+  const updateMember = async (id: string, updates: Partial<Member>) => {
     const originalMember = state.data.members.find(m => m.id === id);
     if (!originalMember) return;
 
@@ -344,7 +312,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const deleteMember = async (id: number) => {
+  const deleteMember = async (id: string) => {
     const memberToDelete = state.data.members.find(m => m.id === id);
     const recordsToDelete = state.data.records.filter(r => r.memberId === id);
     
@@ -370,7 +338,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const deleteRecord = async (id: number) => {
+  const deleteRecord = async (id: string) => {
     const recordToDelete = state.data.records.find(r => r.id === id);
     if (!recordToDelete) return;
 
@@ -379,17 +347,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const updatedData = {
         ...state.data,
-        records: state.data.records.filter(record => record.id !== id),
-        members: state.data.members.map(member => {
-          if (member.id === recordToDelete.memberId) {
-            return {
-              ...member,
-              totalDistance: Math.max(0, member.totalDistance - recordToDelete.distance),
-              recordCount: Math.max(0, member.recordCount - 1)
-            };
-          }
-          return member;
-        })
+        records: state.data.records.filter(record => record.id !== id)
       };
       
       await saveData(updatedData);
@@ -400,7 +358,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const deleteSchedule = async (id: number) => {
+  const deleteSchedule = async (id: string) => {
     const scheduleToDelete = state.data.schedules.find(s => s.id === id);
     if (!scheduleToDelete) return;
 
@@ -420,55 +378,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateRecord = async (id: number, updates: Partial<Record>) => {
+  const updateRecord = async (id: string, updates: Partial<Record>) => {
     const originalRecord = state.data.records.find(r => r.id === id);
     if (!originalRecord) return;
-
-    // 멤버 통계 업데이트를 위한 계산
-    const oldMember = state.data.members.find(m => m.id === originalRecord.memberId);
-    const newMember = updates.memberId ? state.data.members.find(m => m.id === updates.memberId) : oldMember;
 
     dispatch({ type: 'UPDATE_RECORD', payload: { id, updates } });
     
     try {
-      // 멤버 통계 재계산
-      let updatedMembers = [...state.data.members];
-      
-      // 이전 멤버에서 통계 제거
-      if (oldMember) {
-        updatedMembers = updatedMembers.map(member => {
-          if (member.id === oldMember.id) {
-            return {
-              ...member,
-              totalDistance: Math.max(0, member.totalDistance - originalRecord.distance),
-              recordCount: Math.max(0, member.recordCount - 1)
-            };
-          }
-          return member;
-        });
-      }
-
-      // 새 멤버에 통계 추가
-      if (newMember) {
-        const newDistance = updates.distance !== undefined ? updates.distance : originalRecord.distance;
-        updatedMembers = updatedMembers.map(member => {
-          if (member.id === newMember.id) {
-            return {
-              ...member,
-              totalDistance: member.totalDistance + newDistance,
-              recordCount: member.recordCount + 1
-            };
-          }
-          return member;
-        });
-      }
-
       const updatedData = {
         ...state.data,
         records: state.data.records.map(record =>
           record.id === id ? { ...record, ...updates } : record
-        ),
-        members: updatedMembers
+        )
       };
       
       await saveData(updatedData);
@@ -479,7 +400,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateSchedule = async (id: number, updates: Partial<Schedule>) => {
+  const updateSchedule = async (id: string, updates: Partial<Schedule>) => {
     const originalSchedule = state.data.schedules.find(s => s.id === id);
     if (!originalSchedule) return;
 

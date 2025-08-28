@@ -60,7 +60,7 @@ export function TeamGoal({ members, records }: TeamGoalProps) {
       return recordDate >= startOfMonth;
     });
     
-    const totalDistance = members.reduce((sum, member) => sum + member.totalDistance, 0);
+    const totalDistance = records.reduce((sum, record) => sum + record.distance, 0);
     const weeklyDistance = weeklyRecords.reduce((sum, record) => sum + record.distance, 0);
     const monthlyDistance = monthlyRecords.reduce((sum, record) => sum + record.distance, 0);
     
@@ -69,7 +69,9 @@ export function TeamGoal({ members, records }: TeamGoalProps) {
       weekly: weeklyDistance,
       monthly: monthlyDistance,
       totalRecords: records.length,
-      activeMembers: members.filter(member => member.recordCount > 0).length
+      activeMembers: members.filter(member => 
+        records.some(record => record.memberId === member.id)
+      ).length
     };
   }, [members, records]);
 

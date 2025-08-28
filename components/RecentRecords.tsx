@@ -28,9 +28,9 @@ export function RecentRecords({ members, records, maxRecords = 10 }: RecentRecor
         };
       })
       .sort((a, b) => {
-        // 먼저 originalDate로 정렬 (최신순)
-        const dateA = new Date(a.originalDate || a.date).getTime();
-        const dateB = new Date(b.originalDate || b.date).getTime();
+        // 날짜로 정렬 (최신순)
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
         return dateB - dateA;
       });
 
@@ -54,13 +54,6 @@ export function RecentRecords({ members, records, maxRecords = 10 }: RecentRecor
   };
 
   const formatTime = (record: Record) => {
-    if (record.originalDate) {
-      const originalDate = new Date(record.originalDate);
-      return originalDate.toLocaleTimeString('ko-KR', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
-    }
     return record.time || '';
   };
 
@@ -150,14 +143,12 @@ export function RecentRecords({ members, records, maxRecords = 10 }: RecentRecor
                 </span>
               </div>
               
-              {record.originalDate && (
-                <div className={styles.detailItem}>
-                  <span className={styles.detailLabel}>등록시간</span>
-                  <span className={styles.detailValue}>
-                    {new Date(record.originalDate).toLocaleString('ko-KR')}
-                  </span>
-                </div>
-              )}
+              <div className={styles.detailItem}>
+                <span className={styles.detailLabel}>등록시간</span>
+                <span className={styles.detailValue}>
+                  {new Date(record.createdAt).toLocaleString('ko-KR')}
+                </span>
+              </div>
             </div>
           </div>
         ))}

@@ -204,6 +204,7 @@ export function Stats({ members, records }: StatsProps) {
         </div>
       </div>
 
+      {/* 데스크톱 테이블 뷰 */}
       <div className={styles.tableContainer}>
         <table className={styles.table}>
           <thead>
@@ -299,6 +300,62 @@ export function Stats({ members, records }: StatsProps) {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* 모바일 카드 뷰 */}
+      <div className={styles.mobileCards}>
+        {sortedStats.map(stat => (
+          <div key={stat.member.id} className={styles.memberCard}>
+            <div className={styles.cardHeader}>
+              <div className={styles.cardRank}>
+                <span className={`${styles.rankBadge} ${getRankBadgeClass(stat.rank)}`}>
+                  {getRankEmoji(stat.rank)}
+                </span>
+              </div>
+              <div className={styles.cardName}>
+                <div className={styles.cardMemberName}>{stat.member.name}</div>
+                <div className={styles.cardSubInfo}>
+                  <span>주간: {stat.weeklyDistance.toFixed(1)}km</span>
+                  <span>월간: {stat.monthlyDistance.toFixed(1)}km</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className={styles.cardStats}>
+              <div className={styles.cardStatItem}>
+                <div className={styles.cardStatValue}>{stat.totalDistance.toFixed(1)}km</div>
+                <div className={styles.cardStatLabel}>총 거리</div>
+              </div>
+              <div className={styles.cardStatItem}>
+                <div className={styles.cardStatValue}>{stat.recordCount}회</div>
+                <div className={styles.cardStatLabel}>기록 수</div>
+              </div>
+              <div className={styles.cardStatItem}>
+                <div className={styles.cardStatValue}>{stat.averageDistance.toFixed(1)}km</div>
+                <div className={styles.cardStatLabel}>평균 거리</div>
+              </div>
+            </div>
+            
+            <div className={styles.cardFooter}>
+              <div>
+                {stat.averagePace ? (
+                  <span className={styles.cardPace}>{stat.averagePace}</span>
+                ) : (
+                  <span className={styles.cardNoPace}>페이스 기록 없음</span>
+                )}
+              </div>
+              <div>
+                {stat.lastRunDate ? (
+                  <span className={styles.cardLastRun}>
+                    {formatDate(stat.lastRunDate)}
+                  </span>
+                ) : (
+                  <span className={styles.cardNoRun}>기록 없음</span>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

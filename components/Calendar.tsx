@@ -86,7 +86,7 @@ export function Calendar({ schedules, onDateClick, selectedDate }: CalendarProps
           onClick={goToPreviousMonth}
           aria-label="이전 달"
         >
-          ‹
+          ◀
         </button>
         
         <div className={styles.monthYear}>
@@ -104,7 +104,7 @@ export function Calendar({ schedules, onDateClick, selectedDate }: CalendarProps
           onClick={goToNextMonth}
           aria-label="다음 달"
         >
-          ›
+          ▶
         </button>
       </div>
 

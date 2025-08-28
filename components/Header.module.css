@@ -48,9 +48,14 @@
   border-color: #fc8181;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .header {
+    padding: 25px 20px;
+    margin-bottom: 25px;
+  }
+  
   .title {
-    font-size: 2em;
+    font-size: 2.2em;
   }
   
   .subtitle {
@@ -58,8 +63,47 @@
   }
   
   .connectionStatus {
+    top: 15px;
+    right: 15px;
+    font-size: 0.75em;
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    padding: 20px 15px;
+    margin-bottom: 20px;
+  }
+  
+  .title {
+    font-size: 1.9em;
+  }
+  
+  .subtitle {
+    font-size: 0.95em;
+  }
+  
+  .connectionStatus {
     position: static;
     display: inline-block;
     margin-top: 15px;
+    font-size: 0.8em;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 18px 12px;
+    margin-bottom: 18px;
+  }
+  
+  .title {
+    font-size: 1.7em;
+  }
+  
+  .subtitle {
+    font-size: 0.9em;
   }
 }

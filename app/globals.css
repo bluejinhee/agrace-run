@@ -9,6 +9,8 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     color: #333;
+    font-size: 16px; /* 기본 폰트 크기 명시 */
+    line-height: 1.5; /* 가독성을 위한 줄 간격 */
 }
 
 .container {
@@ -73,6 +75,7 @@ button {
     border: 2px solid #e2e8f0;
     border-radius: 8px;
     font-size: 16px;
+    min-height: 44px; /* 터치 친화적인 최소 크기 */
 }
 
 input,
@@ -89,6 +92,7 @@ button {
     font-weight: bold;
     transition: background 0.3s;
     min-width: 120px;
+    min-height: 44px; /* 터치 친화적인 최소 크기 */
 }
 
 button:hover {
@@ -187,19 +191,119 @@ button:hover {
     font-size: 1.3em;
 }
 
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    header {
+        padding: 25px 20px;
+        margin-bottom: 25px;
+    }
+    
+    header h1 {
+        font-size: 2.2em;
+    }
+    
+    header p {
+        font-size: 1em;
+    }
+    
+    .member-section,
+    .record-section,
+    .stats-section,
+    .team-goal-section,
+    .records-section {
+        padding: 20px;
+        margin-bottom: 18px;
+    }
+    
+    .member-section h2,
+    .record-section h2,
+    .stats-section h2,
+    .team-goal-section h2,
+    .records-section h2 {
+        font-size: 1.3em;
+        margin-bottom: 18px;
+    }
+}
+
 @media (max-width: 600px) {
+    .container {
+        padding: 12px;
+    }
+    
+    header {
+        padding: 20px 15px;
+        margin-bottom: 20px;
+    }
+    
+    header h1 {
+        font-size: 1.9em;
+    }
+    
+    .member-section,
+    .record-section,
+    .stats-section,
+    .team-goal-section,
+    .records-section {
+        padding: 18px;
+        margin-bottom: 15px;
+    }
+    
     .input-group {
         flex-direction: column;
+        gap: 12px;
     }
 
     input,
     select,
     button {
         min-width: 100%;
+        padding: 14px;
+        font-size: 16px;
     }
 
     .member-stats {
         grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .stat-item {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+    
+    header {
+        padding: 18px 12px;
+        margin-bottom: 18px;
+    }
+    
+    header h1 {
+        font-size: 1.7em;
+    }
+    
+    .member-section,
+    .record-section,
+    .stats-section,
+    .team-goal-section,
+    .records-section {
+        padding: 15px;
+        margin-bottom: 12px;
+    }
+    
+    .member-section h2,
+    .record-section h2,
+    .stats-section h2,
+    .team-goal-section h2,
+    .records-section h2 {
+        font-size: 1.2em;
+        margin-bottom: 15px;
     }
 }
 
@@ -353,18 +457,91 @@ button:hover {
     padding: 20px;
 }
 
+@media (max-width: 768px) {
+    .team-progress {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .goal-card {
+        padding: 18px;
+    }
+    
+    .goal-title {
+        font-size: 1.2em;
+    }
+    
+    .goal-progress {
+        font-size: 2.2em;
+    }
+    
+    .team-total {
+        padding: 20px;
+    }
+    
+    .team-total .total-distance {
+        font-size: 2.5em;
+    }
+}
+
 @media (max-width: 600px) {
     .record-item {
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
+        gap: 12px;
+        padding: 18px;
     }
 
     .record-info {
         flex-direction: column;
         align-items: flex-start;
-        gap: 8px;
+        gap: 10px;
         width: 100%;
+    }
+    
+    .record-member {
+        font-size: 1.05em;
+    }
+    
+    .record-distance {
+        padding: 6px 14px;
+        font-size: 0.95em;
+    }
+    
+    .goal-progress {
+        font-size: 2em;
+        margin: 12px 0;
+    }
+    
+    .team-total .total-distance {
+        font-size: 2.2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .record-item {
+        padding: 15px;
+    }
+    
+    .goal-card {
+        padding: 15px;
+    }
+    
+    .goal-title {
+        font-size: 1.1em;
+    }
+    
+    .goal-progress {
+        font-size: 1.8em;
+        margin: 10px 0;
+    }
+    
+    .team-total {
+        padding: 18px;
+    }
+    
+    .team-total .total-distance {
+        font-size: 2em;
     }
 }
 

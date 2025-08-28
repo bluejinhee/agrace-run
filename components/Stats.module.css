@@ -236,76 +236,161 @@
   }
 }
 
+/* 모바일 카드 레이아웃 */
+.mobileCards {
+  display: none;
+}
+
+.memberCard {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.memberCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.cardRank {
+  flex-shrink: 0;
+}
+
+.cardName {
+  flex: 1;
+  margin-left: 15px;
+}
+
+.cardMemberName {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #2d3748;
+  margin-bottom: 4px;
+}
+
+.cardSubInfo {
+  display: flex;
+  gap: 12px;
+  font-size: 0.85em;
+  color: #718096;
+}
+
+.cardStats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.cardStatItem {
+  text-align: center;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.cardStatValue {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #4a5568;
+  margin-bottom: 4px;
+}
+
+.cardStatLabel {
+  font-size: 0.8em;
+  color: #718096;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.cardPace {
+  background: #fff5f5;
+  color: #c53030;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.cardNoPace {
+  color: #a0aec0;
+  font-style: italic;
+  font-size: 0.9em;
+}
+
+.cardLastRun {
+  color: #4a5568;
+  font-weight: 500;
+  font-size: 0.9em;
+}
+
+.cardNoRun {
+  color: #a0aec0;
+  font-style: italic;
+  font-size: 0.9em;
+}
+
 @media (max-width: 768px) {
   .stats {
-    padding: 20px;
+    padding: 18px;
   }
   
   .statsHeader {
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     align-items: flex-start;
   }
   
+  .statsHeader h3 {
+    font-size: 1.3em;
+  }
+  
+  .sortInfo {
+    font-size: 0.85em;
+  }
+  
   .tableContainer {
-    border: none;
+    display: none;
   }
   
-  .table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-  
-  .table thead,
-  .table tbody,
-  .table th,
-  .table td,
-  .table tr {
+  .mobileCards {
     display: block;
   }
   
-  .table thead tr {
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
+  .cardStats {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
   }
   
-  .table tr {
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    padding: 15px;
-    background: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  .cardStatItem {
+    padding: 10px;
   }
   
-  .table td {
-    border: none;
-    position: relative;
-    padding: 8px 0;
-    text-align: left !important;
+  .cardStatValue {
+    font-size: 1em;
   }
   
-  .table td:before {
-    content: attr(data-label) ": ";
-    font-weight: bold;
-    color: #4a5568;
-    display: inline-block;
-    width: 100px;
-  }
-  
-  .rankCell:before { content: "순위: "; }
-  .nameCell:before { content: "이름: "; }
-  .distanceCell:before { content: "총 거리: "; }
-  .countCell:before { content: "기록 수: "; }
-  .averageCell:before { content: "평균 거리: "; }
-  .paceCell:before { content: "평균 페이스: "; }
-  .dateCell:before { content: "마지막 러닝: "; }
-  
-  .memberSubInfo {
-    margin-top: 5px;
-    margin-left: 100px;
+  .cardStatLabel {
+    font-size: 0.75em;
   }
 }
 
@@ -314,12 +399,34 @@
     padding: 15px;
   }
   
-  .table td:before {
-    width: 80px;
-    font-size: 0.8em;
+  .memberCard {
+    padding: 16px;
   }
   
-  .memberSubInfo {
-    margin-left: 80px;
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .cardName {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .cardSubInfo {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .cardStats {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  
+  .cardFooter {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
   }
 }

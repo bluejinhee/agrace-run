@@ -83,8 +83,9 @@ export function RecordForm({ members, onSubmit, loading = false }: RecordFormPro
     
     try {
       const record: NewRecord = {
-        memberId: parseInt(formData.memberId),
+        memberId: formData.memberId,
         distance: parseFloat(formData.distance),
+        time: '', // 기본값 설정
         pace: formData.pace || undefined,
         date: formData.date
       };
@@ -111,7 +112,7 @@ export function RecordForm({ members, onSubmit, loading = false }: RecordFormPro
     }
   };
 
-  const selectedMember = members.find(m => m.id === parseInt(formData.memberId));
+  const selectedMember = members.find(m => m.id === formData.memberId);
 
   return (
     <div className={styles.recordForm}>
@@ -197,8 +198,8 @@ export function RecordForm({ members, onSubmit, loading = false }: RecordFormPro
             <div className={styles.memberInfo}>
               <span className={styles.memberName}>{selectedMember.name}</span>
               <div className={styles.memberStats}>
-                <span>총 거리: {selectedMember.totalDistance.toFixed(1)}km</span>
-                <span>기록 수: {selectedMember.recordCount}회</span>
+                <span>가입일: {new Date(selectedMember.joinDate).toLocaleDateString('ko-KR')}</span>
+                {selectedMember.email && <span>이메일: {selectedMember.email}</span>}
               </div>
             </div>
           </div>

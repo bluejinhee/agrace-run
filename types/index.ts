@@ -5,48 +5,59 @@
 
 // 멤버 인터페이스
 export interface Member {
-  id: number;
+  id: string;
   name: string;
-  totalDistance: number;
-  recordCount: number;
+  email?: string;
+  phone?: string;
   joinDate: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // 기록 인터페이스
 export interface Record {
-  id: number;
-  memberId: number;
+  id: string;
+  memberId: string;
   distance: number;
-  pace?: string;
-  date: string;
   time: string;
-  originalDate: string;
+  pace?: string;
+  notes?: string;
+  date: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // 스케줄 인터페이스
 export interface Schedule {
-  id: number;
+  id: string;
   date: string;
-  time: string;
-  location: string;
+  title: string;
   description?: string;
+  location?: string;
+  time?: string;
+  participants?: string[];
   createdAt: string;
+  updatedAt: string;
 }
 
 // 새 기록 인터페이스
 export interface NewRecord {
-  memberId: number;
+  memberId: string;
   distance: number;
+  time: string;
   pace?: string;
+  notes?: string;
   date: string;
 }
 
 // 새 스케줄 인터페이스
 export interface NewSchedule {
   date: string;
-  time: string;
-  location: string;
+  title: string;
   description?: string;
+  location?: string;
+  time?: string;
+  participants?: string[];
 }
 
 // 앱 데이터 인터페이스
@@ -76,10 +87,10 @@ export interface AppContextType {
   addMember: (name: string) => Promise<void>;
   addRecord: (record: NewRecord) => Promise<void>;
   addSchedule: (schedule: NewSchedule) => Promise<void>;
-  updateMember: (id: number, updates: Partial<Member>) => Promise<void>;
-  deleteMember: (id: number) => Promise<void>;
-  deleteRecord: (id: number) => Promise<void>;
-  deleteSchedule: (id: number) => Promise<void>;
+  updateMember: (id: string, updates: Partial<Member>) => Promise<void>;
+  deleteMember: (id: string) => Promise<void>;
+  deleteRecord: (id: string) => Promise<void>;
+  deleteSchedule: (id: string) => Promise<void>;
   refreshData: () => Promise<void>;
 }
 
@@ -135,7 +146,7 @@ export interface MemberCardProps {
   member: Member;
   stats?: MemberStats;
   onEdit?: (member: Member) => void;
-  onDelete?: (id: number) => void;
+  onDelete?: (id: string) => void;
 }
 
 export interface LoadingSpinnerProps {
@@ -151,7 +162,7 @@ export interface ErrorMessageProps {
 
 // 유틸리티 타입들
 export type SortDirection = 'asc' | 'desc';
-export type SortField = 'name' | 'totalDistance' | 'recordCount' | 'joinDate';
+export type SortField = 'name' | 'joinDate' | 'createdAt';
 
 export interface SortConfig {
   field: SortField;

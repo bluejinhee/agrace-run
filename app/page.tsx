@@ -16,7 +16,7 @@ export default function HomePage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
   if (loading) {
-    return <LoadingSpinner message="런닝크루 데이터 로딩 중..." />;
+    return <LoadingSpinner message="러닝크루 데이터 로딩 중..." />;
   }
 
   if (error) {
@@ -34,13 +34,13 @@ export default function HomePage() {
   return (
     <>
       <Header 
-        title="큰은혜교회 런닝크루" 
+        title="큰은혜교회 러닝크루" 
         subtitle="함께 달리며 건강한 신앙생활을 만들어가요!" 
       />
       
       {/* 스케줄 달력 섹션 */}
       <div className="member-section">
-        <h2>📅 런닝 스케줄</h2>
+        <h2>📅 러닝 스케줄</h2>
         <Calendar 
           schedules={data.schedules}
           onDateClick={handleDateClick}

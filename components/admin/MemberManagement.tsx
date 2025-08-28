@@ -36,7 +36,7 @@ export function MemberManagement() {
     try {
       await addMember(name);
       setMemberName('');
-      alert(name + '님이 런닝크루에 가입했습니다! 🎉');
+      alert(name + '님이 러닝크루에 가입했습니다! 🎉');
     } catch (error) {
       console.error('Error adding member:', error);
       alert('멤버 추가 중 오류가 발생했습니다.');

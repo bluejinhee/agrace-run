@@ -24,7 +24,7 @@ export default function AdminPage() {
   return (
     <>
       <Header 
-        title="⚙️ 런닝크루 관리자 페이지" 
+        title="⚙️ 러닝크루 관리자 페이지" 
         subtitle="멤버 관리 및 데이터 관리" 
       />
       

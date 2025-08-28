@@ -2,7 +2,7 @@
 
 ## Overview
 
-큰은혜교회 런닝크루 웹사이트를 AWS Amplify와 S3를 이용한 단순하고 효율적인 아키텍처로 재설계합니다. 기존의 복잡한 Lambda/API Gateway 구조를 제거하고, Amplify 호스팅과 S3 직접 연동만을 사용하여 관리가 쉽고 비용 효율적인 시스템을 구축합니다.
+큰은혜교회 러닝크루 웹사이트를 AWS Amplify와 S3를 이용한 단순하고 효율적인 아키텍처로 재설계합니다. 기존의 복잡한 Lambda/API Gateway 구조를 제거하고, Amplify 호스팅과 S3 직접 연동만을 사용하여 관리가 쉽고 비용 효율적인 시스템을 구축합니다.
 
 ## Architecture
 

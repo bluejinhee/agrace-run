@@ -2,7 +2,7 @@
 
 ## Overview
 
-큰은혜교회 런닝크루 애플리케이션을 바닐라 JavaScript에서 Next.js로 마이그레이션하는 설계입니다. 현재 애플리케이션은 멤버 관리, 러닝 기록 추가, 팀 목표 추적, 스케줄 관리 기능을 제공하며, AWS Amplify와 DynamoDB를 통해 데이터를 관리합니다.
+큰은혜교회 러닝크루 애플리케이션을 바닐라 JavaScript에서 Next.js로 마이그레이션하는 설계입니다. 현재 애플리케이션은 멤버 관리, 러닝 기록 추가, 팀 목표 추적, 스케줄 관리 기능을 제공하며, AWS Amplify와 DynamoDB를 통해 데이터를 관리합니다.
 
 ## Architecture
 

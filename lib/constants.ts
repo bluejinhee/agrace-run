@@ -5,8 +5,8 @@
 
 // 애플리케이션 설정
 export const APP_CONFIG = {
-  name: '큰은혜교회 런닝크루',
-  description: '큰은혜교회 런닝크루 애플리케이션',
+  name: '큰은혜교회 러닝크루',
+  description: '큰은혜교회 러닝크루 애플리케이션',
   version: '2.0.0',
 } as const;
 

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-현재 런닝크루 애플리케이션은 S3에 JSON 파일 형태로 멤버, 기록, 스케줄 데이터를 저장하고 있습니다. 이를 DynamoDB를 이용한 NoSQL 데이터베이스 구조로 변경하여 더 효율적이고 확장 가능한 데이터 관리 시스템을 구축하고자 합니다. DynamoDB는 AWS의 완전 관리형 NoSQL 데이터베이스로, 높은 성능과 확장성을 제공하며 현재 Amplify 기반 인프라와 잘 통합됩니다.
+현재 러닝크루 애플리케이션은 S3에 JSON 파일 형태로 멤버, 기록, 스케줄 데이터를 저장하고 있습니다. 이를 DynamoDB를 이용한 NoSQL 데이터베이스 구조로 변경하여 더 효율적이고 확장 가능한 데이터 관리 시스템을 구축하고자 합니다. DynamoDB는 AWS의 완전 관리형 NoSQL 데이터베이스로, 높은 성능과 확장성을 제공하며 현재 Amplify 기반 인프라와 잘 통합됩니다.
 
 ## Requirements
 
@@ -29,11 +29,11 @@
 
 ### Requirement 3
 
-**User Story:** 사용자로서, 런닝 기록 데이터가 DynamoDB에 효율적으로 저장되고 조회되기를 원합니다.
+**User Story:** 사용자로서, 러닝 기록 데이터가 DynamoDB에 효율적으로 저장되고 조회되기를 원합니다.
 
 #### Acceptance Criteria
 
-1. WHEN 새로운 런닝 기록을 추가할 때 THEN 시스템은 DynamoDB Records 테이블에 데이터를 저장해야 합니다
+1. WHEN 새로운 러닝 기록을 추가할 때 THEN 시스템은 DynamoDB Records 테이블에 데이터를 저장해야 합니다
 2. WHEN 기록을 수정할 때 THEN 시스템은 DynamoDB에서 해당 기록을 업데이트해야 합니다
 3. WHEN 기록을 삭제할 때 THEN 시스템은 DynamoDB에서 해당 기록을 삭제하고 멤버 통계를 업데이트해야 합니다
 4. WHEN 최근 기록을 조회할 때 THEN 시스템은 DynamoDB에서 날짜순으로 정렬된 기록을 가져와야 합니다

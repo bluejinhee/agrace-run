@@ -4,6 +4,7 @@ import React, { createContext, useContext, useReducer, useEffect, ReactNode } fr
 import { Member, Record, Schedule, Milestone, AppData, NewRecord, NewSchedule, NewMilestone } from '../types';
 import DynamoDBCognitoManager from '../lib/dynamodb-cognito.js';
 import { handleStorageError } from '../lib/errorHandler';
+import { getKSTDateString } from '../lib/dateUtils';
 
 interface AppState {
   data: AppData;
@@ -275,6 +276,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const recordData = {
         ...record,
+        date: record.date || getKSTDateString(), // KST 기준 날짜 강제 적용
         time: new Date().toLocaleTimeString('ko-KR')
       };
       const newRecord = await storageManager.addRecord(recordData);
@@ -289,7 +291,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addSchedule = async (scheduleData: NewSchedule) => {
     try {
-      const newSchedule = await storageManager.addSchedule(scheduleData);
+      const scheduleWithKSTDate = {
+        ...scheduleData,
+        date: scheduleData.date || getKSTDateString() // KST 기준 날짜 강제 적용
+      };
+      const newSchedule = await storageManager.addSchedule(scheduleWithKSTDate);
       dispatch({ type: 'ADD_SCHEDULE', payload: newSchedule });
       dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'online' });
     } catch (error) {

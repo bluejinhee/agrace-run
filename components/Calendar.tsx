@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Schedule } from '../types';
+import { formatKSTDate, parseKSTDate, getKSTDateString, isToday, isCurrentMonth } from '../lib/dateUtils';
 import styles from './Calendar.module.css';
 
 interface CalendarProps {
@@ -17,7 +18,7 @@ export function Calendar({ schedules, onDateClick, selectedDate }: CalendarProps
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     
-    // 월의 첫 번째 날과 마지막 날
+    // 월의 첫 번째 날과 마지막 날 (KST 기준)
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     
@@ -33,14 +34,19 @@ export function Calendar({ schedules, onDateClick, selectedDate }: CalendarProps
     const current = new Date(startDate);
     
     while (current <= endDate) {
-      const dateStr = current.toISOString().split('T')[0];
+      // KST 기준으로 날짜 문자열 생성
+      const dateStr = current.getFullYear() + '-' + 
+                     String(current.getMonth() + 1).padStart(2, '0') + '-' + 
+                     String(current.getDate()).padStart(2, '0');
+      
       const daySchedules = schedules.filter(schedule => schedule.date === dateStr);
       
       days.push({
         date: new Date(current),
+        dateString: dateStr,
         hasSchedule: daySchedules.length > 0,
         schedules: daySchedules,
-        isToday: current.toDateString() === new Date().toDateString(),
+        isToday: isToday(dateStr),
         isCurrentMonth: current.getMonth() === month,
         isSelected: selectedDate && current.toDateString() === selectedDate.toDateString()
       });
@@ -150,26 +156,31 @@ export function Calendar({ schedules, onDateClick, selectedDate }: CalendarProps
 
       {selectedDate && (
         <div className={styles.selectedDateInfo}>
-          <h4>{selectedDate.toLocaleDateString('ko-KR', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric',
-            weekday: 'long'
+          <h4>{formatKSTDate(selectedDate, { 
+            includeWeekday: true,
+            includeYear: true,
+            format: 'long'
           })}</h4>
-          {schedules
-            .filter(schedule => schedule.date === selectedDate.toISOString().split('T')[0])
-            .map(schedule => (
-              <div key={schedule.id} className={styles.selectedSchedule}>
-                <span className={styles.scheduleTime}>{schedule.time}</span>
-                <span className={styles.scheduleLocation}>{schedule.location}</span>
-                {schedule.description && (
-                  <div className={styles.scheduleDescription}>
-                    {schedule.description}
-                  </div>
-                )}
-              </div>
-            ))
-          }
+          {(() => {
+            // 선택된 날짜를 KST 기준 문자열로 변환
+            const selectedDateStr = selectedDate.getFullYear() + '-' + 
+                                   String(selectedDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                                   String(selectedDate.getDate()).padStart(2, '0');
+            
+            return schedules
+              .filter(schedule => schedule.date === selectedDateStr)
+              .map(schedule => (
+                <div key={schedule.id} className={styles.selectedSchedule}>
+                  <span className={styles.scheduleTime}>{schedule.time}</span>
+                  <span className={styles.scheduleLocation}>{schedule.location}</span>
+                  {schedule.description && (
+                    <div className={styles.scheduleDescription}>
+                      {schedule.description}
+                    </div>
+                  )}
+                </div>
+              ));
+          })()}
         </div>
       )}
     </div>

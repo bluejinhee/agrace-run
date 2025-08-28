@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { Member, NewRecord } from '../types';
+import { getKSTDateString, formatKSTDate, parseKSTDate } from '../lib/dateUtils';
 import styles from './RecordForm.module.css';
 
 interface RecordFormProps {
@@ -15,7 +16,7 @@ export function RecordForm({ members, onSubmit, loading = false }: RecordFormPro
     memberId: '',
     distance: '',
     pace: '',
-    date: new Date().toISOString().split('T')[0]
+    date: getKSTDateString() // KST 기준 오늘 날짜
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,9 +46,9 @@ export function RecordForm({ members, onSubmit, loading = false }: RecordFormPro
       return '날짜를 선택해주세요.';
     }
     
-    const selectedDate = new Date(formData.date);
-    const today = new Date();
-    today.setHours(23, 59, 59, 999);
+    // KST 기준으로 날짜 비교
+    const selectedDate = parseKSTDate(formData.date);
+    const today = parseKSTDate(getKSTDateString());
     
     if (selectedDate > today) {
       return '미래 날짜는 선택할 수 없습니다.';
@@ -97,7 +98,7 @@ export function RecordForm({ members, onSubmit, loading = false }: RecordFormPro
         memberId: '',
         distance: '',
         pace: '',
-        date: new Date().toISOString().split('T')[0]
+        date: getKSTDateString() // KST 기준 오늘 날짜로 초기화
       });
       
       setSuccess(true);
@@ -185,7 +186,7 @@ export function RecordForm({ members, onSubmit, loading = false }: RecordFormPro
               type="date"
               value={formData.date}
               onChange={(e) => handleInputChange('date', e.target.value)}
-              max={new Date().toISOString().split('T')[0]}
+              max={getKSTDateString()}
               className={styles.input}
               disabled={loading || isSubmitting}
             />

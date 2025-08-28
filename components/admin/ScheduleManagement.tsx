@@ -3,13 +3,14 @@
 import { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { Schedule } from '../../types';
+import { formatKSTDate, parseKSTDate, getKSTDateString } from '../../lib/dateUtils';
 import styles from './ScheduleManagement.module.css';
 
 export function ScheduleManagement() {
   const { data, addSchedule, updateSchedule, deleteSchedule } = useApp();
   const [scheduleForm, setScheduleForm] = useState({
     title: '',
-    date: '',
+    date: getKSTDateString(), // 기본값을 오늘 날짜로 설정
     time: '',
     location: '',
     description: ''
@@ -165,9 +166,21 @@ export function ScheduleManagement() {
 
   // 날짜순으로 정렬 (최신순)
   const sortedSchedules = [...data.schedules].sort((a, b) => {
-    const dateA = new Date(a.date + ' ' + a.time);
-    const dateB = new Date(b.date + ' ' + b.time);
-    return dateB.getTime() - dateA.getTime();
+    // KST 기준으로 날짜 비교
+    const dateTimeA = parseKSTDate(a.date);
+    const dateTimeB = parseKSTDate(b.date);
+    
+    // 시간도 고려하여 정렬
+    if (a.time) {
+      const [hoursA, minutesA] = a.time.split(':').map(Number);
+      dateTimeA.setHours(hoursA, minutesA);
+    }
+    if (b.time) {
+      const [hoursB, minutesB] = b.time.split(':').map(Number);
+      dateTimeB.setHours(hoursB, minutesB);
+    }
+    
+    return dateTimeB.getTime() - dateTimeA.getTime();
   });
 
   return (
@@ -230,14 +243,15 @@ export function ScheduleManagement() {
           <div className={styles.noSchedules}>등록된 스케줄이 없습니다.</div>
         ) : (
           sortedSchedules.map(schedule => {
-            const scheduleDate = new Date(schedule.date);
-            const formattedDate = scheduleDate.toLocaleDateString('ko-KR');
 
             return (
               <div key={schedule.id} className={styles.scheduleItem}>
                 <div className={styles.scheduleInfo}>
                   <div className={styles.scheduleDateTime}>
-                    {formattedDate} {schedule.time}
+                    {formatKSTDate(parseKSTDate(schedule.date), { 
+                      includeWeekday: true, 
+                      format: 'long' 
+                    })} {schedule.time}
                   </div>
                   <div className={styles.scheduleLocation}>
                     📍 {schedule.location}

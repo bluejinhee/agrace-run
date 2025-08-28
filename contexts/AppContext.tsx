@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { Member, Record, Schedule, AppData, NewRecord, NewSchedule } from '../types';
-import { StorageManager } from '../lib/storage';
+import DynamoDBCognitoManager from '../lib/dynamodb-cognito.js';
 import { handleStorageError } from '../lib/errorHandler';
 
 interface AppState {
@@ -170,7 +170,7 @@ const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  const storageManager = StorageManager.getInstance();
+  const storageManager = new DynamoDBCognitoManager();
 
   // 초기 데이터 로드
   useEffect(() => {
@@ -195,8 +195,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const data = await storageManager.loadAllData();
-      dispatch({ type: 'SET_DATA', payload: data });
+      
+      // DynamoDB 데이터를 앱 타입으로 변환
+      const appData: AppData = {
+        members: data.members as Member[],
+        records: data.records as Record[],
+        schedules: data.schedules as Schedule[]
+      };
+      
+      dispatch({ type: 'SET_DATA', payload: appData });
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'online' });
     } catch (error) {
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'offline' });
       const errorMessage = handleStorageError(error);
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
     } finally {
@@ -205,135 +215,71 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const saveData = async (data: AppData) => {
-    try {
-      await storageManager.saveAllData(data);
-      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'online' });
-    } catch (error) {
-      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'offline' });
-      throw error;
-    }
+    // 개별 메서드를 사용하므로 이 함수는 더 이상 필요하지 않음
+    // 호환성을 위해 빈 함수로 유지
+    console.log('saveData called - using individual DynamoDB methods instead');
   };
 
   const addMember = async (name: string) => {
-    const now = new Date().toISOString();
-    const newMember: Member = {
-      id: Date.now().toString(),
-      name,
-      joinDate: new Date().toISOString().split('T')[0],
-      createdAt: now,
-      updatedAt: now
-    };
-
-    dispatch({ type: 'ADD_MEMBER', payload: newMember });
-    
     try {
-      await saveData({
-        ...state.data,
-        members: [...state.data.members, newMember]
-      });
+      const newMember = await storageManager.addMember({ name });
+      dispatch({ type: 'ADD_MEMBER', payload: newMember });
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'online' });
     } catch (error) {
-      // 롤백
-      dispatch({ type: 'DELETE_MEMBER', payload: newMember.id });
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'offline' });
+      console.error('Error adding member:', error);
       throw error;
     }
   };
 
   const addRecord = async (record: NewRecord) => {
-    const now = new Date().toISOString();
-    const newRecord: Record = {
-      id: Date.now().toString(),
-      memberId: record.memberId,
-      distance: record.distance,
-      pace: record.pace,
-      date: record.date,
-      time: new Date().toLocaleTimeString('ko-KR'),
-      createdAt: now,
-      updatedAt: now
-    };
-
-    dispatch({ type: 'ADD_RECORD', payload: newRecord });
-    
     try {
-      const updatedData = {
-        ...state.data,
-        records: [...state.data.records, newRecord]
+      const recordData = {
+        ...record,
+        time: new Date().toLocaleTimeString('ko-KR')
       };
-      
-      await saveData(updatedData);
+      const newRecord = await storageManager.addRecord(recordData);
+      dispatch({ type: 'ADD_RECORD', payload: newRecord });
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'online' });
     } catch (error) {
-      // 롤백
-      dispatch({ type: 'DELETE_RECORD', payload: newRecord.id });
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'offline' });
+      console.error('Error adding record:', error);
       throw error;
     }
   };
 
   const addSchedule = async (scheduleData: NewSchedule) => {
-    const now = new Date().toISOString();
-    const newSchedule: Schedule = {
-      id: Date.now().toString(),
-      ...scheduleData,
-      createdAt: now,
-      updatedAt: now
-    };
-
-    dispatch({ type: 'ADD_SCHEDULE', payload: newSchedule });
-    
     try {
-      await saveData({
-        ...state.data,
-        schedules: [...state.data.schedules, newSchedule]
-      });
+      const newSchedule = await storageManager.addSchedule(scheduleData);
+      dispatch({ type: 'ADD_SCHEDULE', payload: newSchedule });
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'online' });
     } catch (error) {
-      // 롤백
-      dispatch({ type: 'DELETE_SCHEDULE', payload: newSchedule.id });
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'offline' });
+      console.error('Error adding schedule:', error);
       throw error;
     }
   };
 
   const updateMember = async (id: string, updates: Partial<Member>) => {
-    const originalMember = state.data.members.find(m => m.id === id);
-    if (!originalMember) return;
-
-    dispatch({ type: 'UPDATE_MEMBER', payload: { id, updates } });
-    
     try {
-      const updatedData = {
-        ...state.data,
-        members: state.data.members.map(member =>
-          member.id === id ? { ...member, ...updates } : member
-        )
-      };
-      
-      await saveData(updatedData);
+      const updatedMember = await storageManager.updateMember(id, updates);
+      dispatch({ type: 'UPDATE_MEMBER', payload: { id, updates: updatedMember as Partial<Member> } });
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'online' });
     } catch (error) {
-      // 롤백
-      dispatch({ type: 'UPDATE_MEMBER', payload: { id, updates: originalMember } });
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'offline' });
+      console.error('Error updating member:', error);
       throw error;
     }
   };
 
   const deleteMember = async (id: string) => {
-    const memberToDelete = state.data.members.find(m => m.id === id);
-    const recordsToDelete = state.data.records.filter(r => r.memberId === id);
-    
-    if (!memberToDelete) return;
-
-    dispatch({ type: 'DELETE_MEMBER', payload: id });
-    
     try {
-      const updatedData = {
-        ...state.data,
-        members: state.data.members.filter(member => member.id !== id),
-        records: state.data.records.filter(record => record.memberId !== id)
-      };
-      
-      await saveData(updatedData);
+      await storageManager.deleteMember(id);
+      dispatch({ type: 'DELETE_MEMBER', payload: id });
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'online' });
     } catch (error) {
-      // 롤백
-      dispatch({ type: 'ADD_MEMBER', payload: memberToDelete });
-      recordsToDelete.forEach(record => {
-        dispatch({ type: 'ADD_RECORD', payload: record });
-      });
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'offline' });
+      console.error('Error deleting member:', error);
       throw error;
     }
   };

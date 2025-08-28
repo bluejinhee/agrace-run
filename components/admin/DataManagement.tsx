@@ -15,6 +15,7 @@ export function DataManagement() {
       members: data.members,
       records: data.records,
       schedules: data.schedules,
+      milestones: data.milestones,
       exportDate: new Date().toISOString(),
       version: '2.0'
     };
@@ -38,6 +39,7 @@ export function DataManagement() {
         members: data.members,
         records: data.records,
         schedules: data.schedules,
+        milestones: data.milestones,
         backupDate: new Date().toISOString(),
         version: '2.0'
       };
@@ -101,7 +103,8 @@ export function DataManagement() {
             const newData = {
               members: importedData.members,
               records: importedData.records || [],
-              schedules: importedData.schedules || []
+              schedules: importedData.schedules || [],
+              milestones: importedData.milestones || []
             };
 
             await saveData(newData);
@@ -144,7 +147,8 @@ export function DataManagement() {
           const emptyData = {
             members: [],
             records: [],
-            schedules: []
+            schedules: [],
+            milestones: []
           };
 
           await saveData(emptyData);

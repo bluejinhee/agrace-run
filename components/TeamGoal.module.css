@@ -102,6 +102,7 @@
   0% {
     transform: scale(1);
   }
+
   100% {
     transform: scale(1.02);
   }
@@ -245,6 +246,53 @@
   min-width: 50px;
 }
 
+.achievedMilestones {
+  background: rgba(40, 167, 69, 0.1);
+  padding: 20px;
+  border-radius: 12px;
+  border-left: 4px solid #28a745;
+  margin-bottom: 20px;
+}
+
+.achievedMilestones h4 {
+  color: #155724;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+}
+
+.milestoneList {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.achievedMilestone {
+  background: rgba(40, 167, 69, 0.2);
+  padding: 12px 16px;
+  border-radius: 8px;
+  text-align: center;
+  min-width: 120px;
+}
+
+.milestoneTarget {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #155724;
+  margin-bottom: 4px;
+}
+
+.milestoneReward {
+  font-size: 0.9em;
+  color: #28a745;
+  font-weight: 500;
+}
+
+.nextMilestone .milestoneReward {
+  color: #667eea;
+  font-size: 1em;
+  margin-bottom: 8px;
+}
+
 .celebration {
   background: linear-gradient(45deg, #ff6b6b, #feca57);
   color: white;
@@ -255,9 +303,12 @@
 }
 
 @keyframes celebration {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.05);
   }
@@ -277,39 +328,48 @@
   .teamGoal {
     padding: 20px;
   }
-  
+
   .totalDistance {
     font-size: 2.5em;
   }
-  
+
   .subStats {
     gap: 20px;
   }
-  
+
   .subStatValue {
     font-size: 1.4em;
   }
-  
+
   .goalProgress {
     grid-template-columns: 1fr;
     gap: 15px;
   }
-  
+
   .goalCard {
     padding: 15px;
   }
-  
+
   .goalCurrent {
     font-size: 1.8em;
   }
-  
+
   .milestoneProgress {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .milestoneProgressBar {
     width: 100%;
+  }
+
+  .milestoneList {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .achievedMilestone {
+    min-width: auto;
   }
 }
 
@@ -318,7 +378,7 @@
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .goalStats {
     flex-direction: column;
     gap: 10px;

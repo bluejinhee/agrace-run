@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { Member, Record, Schedule, AppData, NewRecord, NewSchedule } from '../types';
+import { Member, Record, Schedule, Milestone, AppData, NewRecord, NewSchedule, NewMilestone } from '../types';
 import DynamoDBCognitoManager from '../lib/dynamodb-cognito.js';
 import { handleStorageError } from '../lib/errorHandler';
 
@@ -25,18 +25,24 @@ type AppAction =
   | { type: 'DELETE_RECORD'; payload: string }
   | { type: 'ADD_SCHEDULE'; payload: Schedule }
   | { type: 'UPDATE_SCHEDULE'; payload: { id: string; updates: Partial<Schedule> } }
-  | { type: 'DELETE_SCHEDULE'; payload: string };
+  | { type: 'DELETE_SCHEDULE'; payload: string }
+  | { type: 'ADD_MILESTONE'; payload: Milestone }
+  | { type: 'UPDATE_MILESTONE'; payload: { id: string; updates: Partial<Milestone> } }
+  | { type: 'DELETE_MILESTONE'; payload: string };
 
 interface AppContextType extends AppState {
   addMember: (name: string) => Promise<void>;
   addRecord: (record: NewRecord) => Promise<void>;
   addSchedule: (schedule: NewSchedule) => Promise<void>;
+  addMilestone: (milestone: NewMilestone) => Promise<void>;
   updateMember: (id: string, updates: Partial<Member>) => Promise<void>;
   updateRecord: (id: string, updates: Partial<Record>) => Promise<void>;
   updateSchedule: (id: string, updates: Partial<Schedule>) => Promise<void>;
+  updateMilestone: (id: string, updates: Partial<Milestone>) => Promise<void>;
   deleteMember: (id: string) => Promise<void>;
   deleteRecord: (id: string) => Promise<void>;
   deleteSchedule: (id: string) => Promise<void>;
+  deleteMilestone: (id: string) => Promise<void>;
   refreshData: () => Promise<void>;
   loadData: () => Promise<void>;
   saveData: (data: AppData) => Promise<void>;
@@ -46,7 +52,8 @@ const initialState: AppState = {
   data: {
     members: [],
     records: [],
-    schedules: []
+    schedules: [],
+    milestones: []
   },
   loading: true,
   error: null,
@@ -161,6 +168,37 @@ function appReducer(state: AppState, action: AppAction): AppState {
         }
       };
     
+    case 'ADD_MILESTONE':
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          milestones: [...state.data.milestones, action.payload]
+        }
+      };
+    
+    case 'UPDATE_MILESTONE':
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          milestones: state.data.milestones.map(milestone =>
+            milestone.id === action.payload.id
+              ? { ...milestone, ...action.payload.updates }
+              : milestone
+          )
+        }
+      };
+    
+    case 'DELETE_MILESTONE':
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          milestones: state.data.milestones.filter(milestone => milestone.id !== action.payload)
+        }
+      };
+    
     default:
       return state;
   }
@@ -200,7 +238,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const appData: AppData = {
         members: data.members as Member[],
         records: data.records as Record[],
-        schedules: data.schedules as Schedule[]
+        schedules: data.schedules as Schedule[],
+        milestones: data.milestones as Milestone[]
       };
       
       dispatch({ type: 'SET_DATA', payload: appData });
@@ -260,6 +299,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const addMilestone = async (milestoneData: NewMilestone) => {
+    try {
+      const newMilestone = await storageManager.addMilestone(milestoneData);
+      dispatch({ type: 'ADD_MILESTONE', payload: newMilestone });
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'online' });
+    } catch (error) {
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'offline' });
+      console.error('Error adding milestone:', error);
+      throw error;
+    }
+  };
+
   const updateMember = async (id: string, updates: Partial<Member>) => {
     try {
       const updatedMember = await storageManager.updateMember(id, updates);
@@ -272,6 +323,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateMilestone = async (id: string, updates: Partial<Milestone>) => {
+    try {
+      await storageManager.updateMilestone(id, updates);
+      dispatch({ type: 'UPDATE_MILESTONE', payload: { id, updates } });
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'online' });
+    } catch (error) {
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'offline' });
+      console.error('Error updating milestone:', error);
+      throw error;
+    }
+  };
+
   const deleteMember = async (id: string) => {
     try {
       await storageManager.deleteMember(id);
@@ -280,6 +343,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'offline' });
       console.error('Error deleting member:', error);
+      throw error;
+    }
+  };
+
+  const deleteMilestone = async (id: string) => {
+    try {
+      await storageManager.deleteMilestone(id);
+      dispatch({ type: 'DELETE_MILESTONE', payload: id });
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'online' });
+    } catch (error) {
+      dispatch({ type: 'SET_CONNECTION_STATUS', payload: 'offline' });
+      console.error('Error deleting milestone:', error);
       throw error;
     }
   };
@@ -377,12 +452,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addMember,
     addRecord,
     addSchedule,
+    addMilestone,
     updateMember,
     updateRecord,
     updateSchedule,
+    updateMilestone,
     deleteMember,
     deleteRecord,
     deleteSchedule,
+    deleteMilestone,
     refreshData,
     loadData,
     saveData

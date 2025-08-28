@@ -9,6 +9,7 @@ import { MemberManagement } from '../../components/admin/MemberManagement';
 import { ScheduleManagement } from '../../components/admin/ScheduleManagement';
 import { RecordManagement } from '../../components/admin/RecordManagement';
 import { DataManagement } from '../../components/admin/DataManagement';
+import { MilestoneManagement } from '../../components/admin/MilestoneManagement';
 
 export default function AdminPage() {
   const { data, loading, error, refreshData } = useApp();
@@ -39,6 +40,9 @@ export default function AdminPage() {
 
       {/* 멤버 관리 섹션 */}
       <MemberManagement />
+
+      {/* 마일스톤 관리 섹션 */}
+      <MilestoneManagement />
 
       {/* 스케줄 관리 섹션 */}
       <ScheduleManagement />

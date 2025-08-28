@@ -23,7 +23,8 @@ export function useStorage(): UseStorageReturn {
   const [data, setData] = useState<AppData>({
     members: [],
     records: [],
-    schedules: []
+    schedules: [],
+    milestones: []
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AppError | null>(null);

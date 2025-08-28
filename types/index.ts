@@ -40,6 +40,16 @@ export interface Schedule {
   updatedAt: string;
 }
 
+// 마일스톤 인터페이스
+export interface Milestone {
+  id: string;
+  targetKm: number;
+  reward: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // 새 기록 인터페이스
 export interface NewRecord {
   memberId: string;
@@ -60,11 +70,18 @@ export interface NewSchedule {
   participants?: string[];
 }
 
+// 새 마일스톤 인터페이스
+export interface NewMilestone {
+  targetKm: number;
+  reward: string;
+}
+
 // 앱 데이터 인터페이스
 export interface AppData {
   members: Member[];
   records: Record[];
   schedules: Schedule[];
+  milestones: Milestone[];
 }
 
 // 로딩 상태 타입
@@ -87,10 +104,13 @@ export interface AppContextType {
   addMember: (name: string) => Promise<void>;
   addRecord: (record: NewRecord) => Promise<void>;
   addSchedule: (schedule: NewSchedule) => Promise<void>;
+  addMilestone: (milestone: NewMilestone) => Promise<void>;
   updateMember: (id: string, updates: Partial<Member>) => Promise<void>;
+  updateMilestone: (id: string, updates: Partial<Milestone>) => Promise<void>;
   deleteMember: (id: string) => Promise<void>;
   deleteRecord: (id: string) => Promise<void>;
   deleteSchedule: (id: string) => Promise<void>;
+  deleteMilestone: (id: string) => Promise<void>;
   refreshData: () => Promise<void>;
 }
 

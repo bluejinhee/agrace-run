@@ -54,6 +54,7 @@ export default function HomePage() {
         <TeamGoal 
           members={data.members}
           records={data.records}
+          milestones={data.milestones}
         />
       </div>
 

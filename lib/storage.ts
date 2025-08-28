@@ -297,7 +297,8 @@ export class StorageManager {
       return {
         members,
         records,
-        schedules
+        schedules,
+        milestones: [] // 기존 storage.ts는 milestones를 지원하지 않으므로 빈 배열 반환
       };
     } catch (error) {
       console.error('Error loading all data:', error);

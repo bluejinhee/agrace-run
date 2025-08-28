@@ -1,0 +1,24 @@
+{
+  "enabled": true,
+  "name": "Secure Commit & Push",
+  "description": "Commits all current changes and pushes to repository after checking for credentials and sensitive data that shouldn't be in a public repo",
+  "version": "1",
+  "when": {
+    "type": "userTriggered",
+    "patterns": [
+      "*.js",
+      "*.json",
+      "*.html",
+      "*.css",
+      "*.md",
+      "*.txt",
+      "package.json",
+      "amplify_outputs.json",
+      ".gitignore"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Please perform the following steps in order: 1) First, scan all files for any credentials, API keys, secrets, or sensitive information that should not be committed to a public repository. Check files like amplify_outputs.json, package.json, .env files, and any configuration files. 2) If any credentials or sensitive data are found, list them and ask the user to review before proceeding. 3) If no sensitive data is found or after user approval, commit all current changes with an appropriate commit message. 4) Push the changes to the remote repository. Please be thorough in checking for: AWS credentials, API keys, database passwords, personal tokens, email addresses, phone numbers, and any other sensitive information."
+  }
+}

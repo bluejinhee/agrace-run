@@ -1,10 +1,15 @@
 {
-  "name": "running-club-dynamodb",
+  "name": "running-club-nextjs",
   "version": "1.0.0",
-  "description": "Running Club Application with DynamoDB Migration",
+  "description": "Running Club Application with Next.js Migration",
   "type": "module",
   "main": "script.js",
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "export": "next build && next export",
     "setup-dynamodb": "node setup-dynamodb.js",
     "create-tables": "node create-dynamodb-tables.js",
     "verify-dynamodb": "node setup-dynamodb.js verify",
@@ -12,18 +17,26 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.0.0",
-    "@aws-sdk/client-s3": "^3.0.0",
-    "aws-amplify": "^6.0.0"
+    "@aws-sdk/lib-dynamodb": "^3.0.0",
+    "next": "14.2.32",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "14.2.32",
+    "typescript": "^5.0.0"
   },
   "keywords": [
     "running",
     "club",
-    "dynamodb",
+    "nextjs",
+    "typescript",
     "aws",
-    "amplify"
+    "dynamodb"
   ],
   "author": "Running Club Team",
   "license": "MIT"

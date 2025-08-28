@@ -6,7 +6,7 @@ let schedules = [];
 // 초기 데이터 로드
 async function initializeData() {
     try {
-        console.log('Loading data from S3...');
+        console.log('Loading data from DynamoDB...');
         const data = await loadFromCloud();
         members = data.members || [];
         records = data.records || [];
@@ -467,8 +467,15 @@ async function createBackup() {
         const backupFileName = `backups/backup-${timestamp}.json`;
         
         if (window.storageManager) {
-            await window.storageManager.saveData(backupFileName, backupData);
-            alert(`백업이 S3에 생성되었습니다! 📦\n파일명: ${backupFileName}`);
+            // DynamoDB에서는 백업을 JSON 파일로 다운로드
+            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup-${timestamp}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            alert(`백업이 다운로드되었습니다! 📦\n파일명: backup-${timestamp}.json`);
         } else {
             throw new Error('Storage manager not available');
         }
@@ -486,14 +493,25 @@ async function listBackups() {
     try {
         showLoading(true);
         
-        if (!window.storageManager) {
-            throw new Error('Storage manager not available');
-        }
-        
-        // S3에서 백업 파일 목록 조회
-        const result = await window.aws_amplify.Storage.list('backups/', {
-            bucket: window.storageManager.bucketName
-        });
+        // DynamoDB에서는 로컬 백업 파일 선택
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                try {
+                    const text = await file.text();
+                    const backupData = JSON.parse(text);
+                    await restoreFromBackup(backupData);
+                } catch (error) {
+                    console.error('백업 복원 실패:', error);
+                    alert('백업 파일을 읽는데 실패했습니다.');
+                }
+            }
+        };
+        input.click();
+        return;
         
         const backupFiles = result
             .filter(item => item.key.endsWith('.json'))
@@ -543,12 +561,8 @@ async function restoreFromBackup(backupPath) {
             return;
         }
         
-        if (!window.storageManager) {
-            throw new Error('Storage manager not available');
-        }
-        
-        // 백업 파일에서 데이터 로드
-        const backupData = await window.storageManager.loadData(backupPath);
+        // 이 함수는 이제 파일 선택 후 직접 호출됩니다
+        async function restoreFromBackup(backupData) {
         
         if (backupData.members && Array.isArray(backupData.members)) {
             members = backupData.members;
@@ -942,17 +956,16 @@ function showLoading(show) {
 // 데이터 저장
 async function saveData() {
     try {
-        console.log('Saving data to S3...');
+        console.log('Saving data to DynamoDB...');
         await saveToCloud(members, records, schedules);
-        console.log('Data saved successfully to S3');
+        console.log('Data saved successfully to DynamoDB');
     } catch (error) {
         console.error('Error saving data to S3:', error);
         alert('데이터 저장 중 오류가 발생했습니다: ' + error.message);
         throw error;
     }
 }
-// 추
-가된 백업/복원 기능을 위한 유틸리티 함수들
+// 추가된 백업/복원 기능을 위한 유틸리티 함수들
 
 // S3 연결 상태 표시 업데이트
 async function refreshConnectionStatus() {

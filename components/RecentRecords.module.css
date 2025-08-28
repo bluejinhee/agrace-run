@@ -1,0 +1,305 @@
+.recentRecords {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.header h3 {
+  color: #4a5568;
+  font-size: 1.5em;
+  margin: 0;
+}
+
+.recordCount {
+  font-size: 0.9em;
+  color: #718096;
+  background: #f8fafc;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.recordsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recordItem {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 16px;
+  border-left: 4px solid #667eea;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.recordItem:hover {
+  background: #f1f5f9;
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.recordMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.memberInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.memberName {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.recordMeta {
+  display: flex;
+  gap: 12px;
+  font-size: 0.9em;
+  color: #718096;
+}
+
+.recordDate {
+  font-weight: 500;
+}
+
+.recordTime {
+  opacity: 0.8;
+}
+
+.recordStats {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.distance {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.shortDistance {
+  background: #e6fffa;
+  color: #234e52;
+}
+
+.mediumDistance {
+  background: #ebf8ff;
+  color: #2a4365;
+}
+
+.longDistance {
+  background: #fef5e7;
+  color: #744210;
+}
+
+.pace {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.8em;
+}
+
+.fastPace {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.mediumPace {
+  background: #feebc8;
+  color: #c05621;
+}
+
+.slowPace {
+  background: #e6fffa;
+  color: #234e52;
+}
+
+.recordDetails {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detailLabel {
+  font-size: 0.8em;
+  color: #718096;
+  font-weight: 500;
+}
+
+.detailValue {
+  font-size: 0.9em;
+  color: #4a5568;
+  font-weight: 600;
+}
+
+.showMoreContainer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.showMoreButton {
+  background: transparent;
+  color: #667eea;
+  border: 1px solid #667eea;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto;
+}
+
+.showMoreButton:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.buttonIcon {
+  font-size: 0.8em;
+  transition: transform 0.3s ease;
+}
+
+.summary {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #f1f5f9;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.summaryLabel {
+  font-size: 0.9em;
+  color: #718096;
+  font-weight: 500;
+}
+
+.summaryValue {
+  font-size: 1.3em;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.noRecords {
+  text-align: center;
+  padding: 60px 20px;
+  color: #718096;
+}
+
+.noRecordsIcon {
+  font-size: 3em;
+  margin-bottom: 15px;
+  opacity: 0.7;
+}
+
+.noRecordsText {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #4a5568;
+}
+
+.noRecordsSubText {
+  font-size: 0.9em;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .recentRecords {
+    padding: 20px;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .recordMain {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .recordStats {
+    align-self: flex-start;
+  }
+  
+  .recordDetails {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  
+  .summary {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .recentRecords {
+    padding: 15px;
+  }
+  
+  .recordItem {
+    padding: 12px;
+  }
+  
+  .recordMeta {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .recordDetails {
+    grid-template-columns: 1fr;
+  }
+  
+  .summary {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .showMoreButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

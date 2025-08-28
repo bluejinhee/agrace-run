@@ -1,21 +1,5 @@
 {
   "version": "1",
-  "storage": {
-    "aws_region": "ap-northeast-1",
-    "bucket_name": "agrace-run-data",
-    "buckets": [
-      {
-        "name": "agrace-run-data",
-        "bucket_name": "agrace-run-data",
-        "aws_region": "ap-northeast-1",
-        "paths": {
-          "public/*": {
-            "guest": ["get", "list", "write", "delete"]
-          }
-        }
-      }
-    ]
-  },
   "data": {
     "aws_region": "ap-northeast-1",
     "url": "https://dynamodb.ap-northeast-1.amazonaws.com",
@@ -51,16 +35,6 @@
   },
   "auth": {
     "aws_region": "ap-northeast-1",
-    "user_pool_id": "",
-    "user_pool_client_id": "",
-    "identity_pool_id": "",
-    "allow_guest_access": true,
-    "password_policy": {
-      "min_length": 8,
-      "require_lowercase": true,
-      "require_uppercase": true,
-      "require_numbers": true,
-      "require_symbols": true
-    }
+    "allow_guest_access": false
   }
 }

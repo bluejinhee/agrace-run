@@ -92,7 +92,7 @@ function showError(message, error = null) {
     // 사용자 친화적인 오류 메시지 생성
     let userMessage = message;
     if (error && error.message) {
-        // storage-manager.js에서 처리된 사용자 친화적 메시지 사용
+        // DynamoDB storage manager에서 처리된 사용자 친화적 메시지 사용
         userMessage = error.message;
     }
     

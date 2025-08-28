@@ -66,7 +66,8 @@
     </div>
 
     <!-- 로딩 표시 -->
-    <div id="loading" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); z-index: 1000;">
+    <div id="loading"
+        style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); z-index: 1000;">
         <div style="text-align: center;">
             <div style="font-size: 2em; margin-bottom: 10px;">🏃‍♂️</div>
             <div>데이터 로딩 중...</div>
@@ -74,19 +75,19 @@
     </div>
 
     <!-- 연결 상태 표시 -->
-    <div id="connectionStatus" class="connection-status" style="position: fixed; top: 10px; right: 10px; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; z-index: 1000;"></div>
+    <div id="connectionStatus" class="connection-status"
+        style="position: fixed; top: 10px; right: 10px; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; z-index: 1000;">
+    </div>
 
-    <!-- Amplify 라이브러리 -->
-    <script src="https://unpkg.com/aws-amplify@5.3.19/dist/aws-amplify.min.js"></script>
-    
-    <!-- Amplify 설정 -->
-    <script src="amplify-config.js"></script>
-    
-    <!-- Storage Manager -->
-    <script src="storage-manager-v5.js"></script>
-    
+    <!-- AWS SDK for DynamoDB -->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1563.0.min.js"></script>
+
+    <!-- DynamoDB Storage Manager -->
+    <script src="lib/dynamodb-browser.js"></script>
+
     <!-- Main 스크립트 -->
-    <script src="script.js"></script></script>
+    <script src="script.js"></script>
+    </script>
 </body>
 
 </html>

@@ -1,0 +1,325 @@
+.stats {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.statsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.statsHeader h3 {
+  color: #4a5568;
+  font-size: 1.5em;
+  margin: 0;
+}
+
+.sortInfo {
+  font-size: 0.9em;
+  color: #718096;
+  font-weight: 500;
+}
+
+.tableContainer {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.table thead {
+  background: #f8fafc;
+}
+
+.table th,
+.table td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.sortableHeader {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.sortableHeader:hover {
+  background: #edf2f7;
+  color: #667eea;
+}
+
+.header {
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.row {
+  transition: all 0.2s ease;
+}
+
+.row:hover {
+  background: #f8fafc;
+}
+
+.rankCell {
+  text-align: center;
+  width: 80px;
+}
+
+.rankBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  height: 30px;
+  border-radius: 15px;
+  font-weight: bold;
+  font-size: 0.8em;
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.rankBadge.gold {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #744210;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+.rankBadge.silver {
+  background: linear-gradient(135deg, #c0c0c0, #e5e5e5);
+  color: #4a5568;
+  box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
+}
+
+.rankBadge.bronze {
+  background: linear-gradient(135deg, #cd7f32, #daa520);
+  color: #744210;
+  box-shadow: 0 2px 8px rgba(205, 127, 50, 0.3);
+}
+
+.nameCell {
+  min-width: 120px;
+}
+
+.memberInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.memberName {
+  font-weight: bold;
+  color: #2d3748;
+  font-size: 1em;
+}
+
+.memberSubInfo {
+  display: flex;
+  gap: 10px;
+  font-size: 0.8em;
+  color: #718096;
+}
+
+.distanceCell {
+  text-align: right;
+  min-width: 80px;
+}
+
+.totalDistance {
+  font-weight: bold;
+  color: #667eea;
+  font-size: 1.1em;
+}
+
+.countCell {
+  text-align: center;
+  min-width: 70px;
+}
+
+.recordCount {
+  background: #e6fffa;
+  color: #234e52;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.averageCell {
+  text-align: right;
+  min-width: 80px;
+}
+
+.averageDistance {
+  color: #48bb78;
+  font-weight: 600;
+}
+
+.paceCell {
+  text-align: center;
+  min-width: 80px;
+}
+
+.pace {
+  background: #fff5f5;
+  color: #c53030;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.noPace {
+  color: #a0aec0;
+  font-style: italic;
+}
+
+.dateCell {
+  text-align: center;
+  min-width: 100px;
+}
+
+.lastRun {
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.noRun {
+  color: #a0aec0;
+  font-style: italic;
+  font-size: 0.9em;
+}
+
+.noData {
+  text-align: center;
+  padding: 60px 20px;
+  color: #718096;
+}
+
+.noDataIcon {
+  font-size: 3em;
+  margin-bottom: 15px;
+}
+
+.noDataText {
+  font-size: 1.1em;
+  font-style: italic;
+}
+
+@media (max-width: 1024px) {
+  .table {
+    font-size: 0.8em;
+  }
+  
+  .table th,
+  .table td {
+    padding: 8px 6px;
+  }
+  
+  .memberSubInfo {
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats {
+    padding: 20px;
+  }
+  
+  .statsHeader {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .tableContainer {
+    border: none;
+  }
+  
+  .table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .table thead,
+  .table tbody,
+  .table th,
+  .table td,
+  .table tr {
+    display: block;
+  }
+  
+  .table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  
+  .table tr {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 15px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .table td {
+    border: none;
+    position: relative;
+    padding: 8px 0;
+    text-align: left !important;
+  }
+  
+  .table td:before {
+    content: attr(data-label) ": ";
+    font-weight: bold;
+    color: #4a5568;
+    display: inline-block;
+    width: 100px;
+  }
+  
+  .rankCell:before { content: "순위: "; }
+  .nameCell:before { content: "이름: "; }
+  .distanceCell:before { content: "총 거리: "; }
+  .countCell:before { content: "기록 수: "; }
+  .averageCell:before { content: "평균 거리: "; }
+  .paceCell:before { content: "평균 페이스: "; }
+  .dateCell:before { content: "마지막 러닝: "; }
+  
+  .memberSubInfo {
+    margin-top: 5px;
+    margin-left: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats {
+    padding: 15px;
+  }
+  
+  .table td:before {
+    width: 80px;
+    font-size: 0.8em;
+  }
+  
+  .memberSubInfo {
+    margin-left: 80px;
+  }
+}

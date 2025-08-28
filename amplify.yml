@@ -68,3 +68,13 @@ frontend:
       value: ap-northeast-1
     - name: NEXT_TELEMETRY_DISABLED
       value: 1
+    - name: NEXT_PUBLIC_AWS_REGION
+      value: ap-northeast-1
+    - name: NEXT_PUBLIC_COGNITO_IDENTITY_POOL_ID
+      value: ap-northeast-1:bedcbab1-5b3e-4426-b376-e65a251fca51
+    - name: NEXT_PUBLIC_DYNAMODB_MEMBERS_TABLE
+      value: RunningClub-Members
+    - name: NEXT_PUBLIC_DYNAMODB_RECORDS_TABLE
+      value: RunningClub-Records
+    - name: NEXT_PUBLIC_DYNAMODB_SCHEDULES_TABLE
+      value: RunningClub-Schedules
